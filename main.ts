@@ -7,7 +7,8 @@ interface MetadataFilterSettings {
 interface MetadataFilter {
 	key: string;
 	value: string;
-	operator: 'equals' | 'contains' | 'exists';
+	operator: 'equals' | 'contains' | 'exists' | 'includes' | 'greater' | 'less';
+	type: 'string' | 'number' | 'array' | 'boolean';
 }
 
 const DEFAULT_SETTINGS: MetadataFilterSettings = {
@@ -66,10 +67,18 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async filterByMetadata(metadata: any) {
+		const key = Object.keys(metadata)[0];
+		const value = metadata[key];
+		
 		const filter: MetadataFilter = {
-			key: Object.keys(metadata)[0],
-			value: metadata[Object.keys(metadata)[0]],
-			operator: 'equals'
+			key: key,
+			value: value.toString(),
+			operator: Array.isArray(value) ? 'includes' : 
+					 typeof value === 'number' ? 'equals' :
+					 typeof value === 'boolean' ? 'equals' : 'contains',
+			type: Array.isArray(value) ? 'array' :
+				  typeof value === 'number' ? 'number' :
+				  typeof value === 'boolean' ? 'boolean' : 'string'
 		};
 		
 		this.settings.filters.push(filter);
@@ -77,6 +86,37 @@ export default class MetadataFilterPlugin extends Plugin {
 		
 		// Refresh file explorer
 		this.app.workspace.trigger('file-explorer:refresh');
+	}
+
+	evaluateFilter(metadata: any, filter: MetadataFilter): boolean {
+		const value = metadata[filter.key];
+		if (value === undefined) return false;
+		
+		switch (filter.operator) {
+			case 'exists':
+				return true;
+			case 'equals':
+				if (filter.type === 'number') {
+					return Number(value) === Number(filter.value);
+				}
+				if (filter.type === 'boolean') {
+					return String(value) === filter.value;
+				}
+				return String(value) === filter.value;
+			case 'contains':
+				return String(value).toLowerCase().includes(filter.value.toLowerCase());
+			case 'includes':
+				if (Array.isArray(value)) {
+					return value.some(v => String(v).toLowerCase() === filter.value.toLowerCase());
+				}
+				return false;
+			case 'greater':
+				return Number(value) > Number(filter.value);
+			case 'less':
+				return Number(value) < Number(filter.value);
+			default:
+				return false;
+		}
 	}
 
 	async applyFiltersToSearch() {
@@ -110,16 +150,59 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 		containerEl.createEl('h2', {text: 'Metadata Filter Settings'});
 
 		this.plugin.settings.filters.forEach((filter, index) => {
-			new Setting(containerEl)
+			const filterSetting = new Setting(containerEl)
 				.setName(`Filter ${index + 1}`)
-				.setDesc(`${filter.key} ${filter.operator} ${filter.value}`)
-				.addButton(btn => btn
-					.setButtonText('Remove')
-					.onClick(async () => {
-						this.plugin.settings.filters.splice(index, 1);
+				.addText(text => text
+					.setPlaceholder('Metadata key')
+					.setValue(filter.key)
+					.onChange(async (value) => {
+						filter.key = value;
 						await this.plugin.saveSettings();
-						this.display();
+					}))
+				.addDropdown(dropdown => dropdown
+					.addOptions({
+						'equals': 'Equals',
+						'contains': 'Contains',
+						'exists': 'Exists',
+						'includes': 'Includes (for arrays)',
+						'greater': 'Greater than',
+						'less': 'Less than'
+					})
+					.setValue(filter.operator)
+					.onChange(async (value: any) => {
+						filter.operator = value;
+						await this.plugin.saveSettings();
+					}))
+				.addDropdown(dropdown => dropdown
+					.addOptions({
+						'string': 'Text',
+						'number': 'Number',
+						'array': 'Array',
+						'boolean': 'Yes/No'
+					})
+					.setValue(filter.type || 'string')
+					.onChange(async (value: any) => {
+						filter.type = value;
+						await this.plugin.saveSettings();
 					}));
+
+			if (filter.operator !== 'exists') {
+				filterSetting.addText(text => text
+					.setPlaceholder('Value')
+					.setValue(filter.value)
+					.onChange(async (value) => {
+						filter.value = value;
+						await this.plugin.saveSettings();
+					}));
+			}
+
+			filterSetting.addButton(btn => btn
+				.setButtonText('Remove')
+				.onClick(async () => {
+					this.plugin.settings.filters.splice(index, 1);
+					await this.plugin.saveSettings();
+					this.display();
+				}));
 		});
 
 		new Setting(containerEl)
@@ -130,7 +213,8 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 					this.plugin.settings.filters.push({
 						key: '',
 						value: '',
-						operator: 'equals'
+						operator: 'equals',
+						type: 'string'
 					});
 					this.plugin.saveSettings();
 					this.display();
