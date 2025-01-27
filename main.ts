@@ -271,7 +271,9 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.hideMatches = value;
 					await this.plugin.saveSettings();
-					this.plugin.applyFiltersToExplorer();
+					await this.plugin.applyFiltersToExplorer();
+					// Force refresh of file explorer
+					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
 		new Setting(containerEl)
