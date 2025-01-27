@@ -128,7 +128,12 @@ export default class MetadataFilterPlugin extends Plugin {
 
 	evaluateFilter(metadata: any, filter: MetadataFilter): boolean {
 		const value = metadata[filter.key];
-		if (value === undefined) return false;
+		console.log('Evaluating filter:', filter, 'on value:', value);
+		
+		if (value === undefined) {
+			console.log('Value undefined for key:', filter.key);
+			return false;
+		}
 		
 		switch (filter.operator) {
 			case 'exists':
@@ -138,9 +143,9 @@ export default class MetadataFilterPlugin extends Plugin {
 					return Number(value) === Number(filter.value);
 				}
 				if (filter.type === 'boolean') {
-					return String(value) === filter.value;
+					return String(value).toLowerCase() === filter.value.toLowerCase();
 				}
-				return String(value) === filter.value;
+				return String(value).toLowerCase() === filter.value.toLowerCase();
 			case 'contains':
 				return String(value).toLowerCase().includes(filter.value.toLowerCase());
 			case 'includes':
@@ -153,30 +158,44 @@ export default class MetadataFilterPlugin extends Plugin {
 			case 'less':
 				return Number(value) < Number(filter.value);
 			default:
+				console.log('Unknown operator:', filter.operator);
 				return false;
 		}
 	}
 
 	async applyFiltersToExplorer() {
 		const fileExplorer = this.app.workspace.getLeavesOfType('file-explorer')[0];
-		if (!fileExplorer) return;
+		if (!fileExplorer) {
+			console.log('No file explorer found');
+			return;
+		}
 
 		const files = this.app.vault.getMarkdownFiles();
 		const visibleFiles = new Set<string>();
 
+		console.log('Applying filters:', this.settings.filters);
+
 		for (const file of files) {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			if (!metadata) continue;
+			console.log('File:', file.path, 'Metadata:', metadata);
+			
+			if (!metadata) {
+				console.log('No metadata for file:', file.path);
+				continue;
+			}
 
 			let matchesAllFilters = true;
 			for (const filter of this.settings.filters) {
-				if (!this.evaluateFilter(metadata, filter)) {
+				const matches = this.evaluateFilter(metadata, filter);
+				console.log('Filter:', filter, 'Matches:', matches);
+				if (!matches) {
 					matchesAllFilters = false;
 					break;
 				}
 			}
 
 			if (matchesAllFilters) {
+				console.log('File matches all filters:', file.path);
 				visibleFiles.add(file.path);
 			}
 		}
@@ -187,11 +206,15 @@ export default class MetadataFilterPlugin extends Plugin {
 		const oldStyle = document.getElementById('metadata-filter-styles');
 		if (oldStyle) oldStyle.remove();
 
-		const hideRules = Object.keys(fileExplorer.view.fileItems)
+		const fileItems = fileExplorer.view.fileItems;
+		console.log('File items:', fileItems);
+		
+		const hideRules = Object.keys(fileItems)
 			.filter(path => !visibleFiles.has(path))
-			.map(path => `.nav-file-title[data-path="${path}"] { display: none !important; }`)
+			.map(path => `.nav-file-title[data-path="${CSS.escape(path)}"] { display: none !important; }`)
 			.join('\n');
 
+		console.log('Hide rules:', hideRules);
 		style.textContent = hideRules;
 		document.head.appendChild(style);
 	}
