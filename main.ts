@@ -2,6 +2,8 @@ import { App, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian
 
 interface MetadataFilterSettings {
 	filters: MetadataFilter[];
+	hideMatches: boolean;
+	combineWithAnd: boolean;
 }
 
 interface MetadataFilter {
@@ -12,7 +14,9 @@ interface MetadataFilter {
 }
 
 const DEFAULT_SETTINGS: MetadataFilterSettings = {
-	filters: []
+	filters: [],
+	hideMatches: false,
+	combineWithAnd: true
 }
 
 export default class MetadataFilterPlugin extends Plugin {
@@ -184,18 +188,27 @@ export default class MetadataFilterPlugin extends Plugin {
 				continue;
 			}
 
-			let matchesAllFilters = true;
-			for (const filter of this.settings.filters) {
-				const matches = this.evaluateFilter(metadata, filter);
-				console.log('Filter:', filter, 'Matches:', matches);
-				if (!matches) {
-					matchesAllFilters = false;
-					break;
-				}
+			let shouldBeVisible = false;
+			
+			if (this.settings.combineWithAnd) {
+				// AND logic - must match all filters
+				shouldBeVisible = this.settings.filters.every(filter => {
+					const matches = this.evaluateFilter(metadata, filter);
+					console.log('Filter:', filter, 'Matches:', matches);
+					return matches;
+				});
+			} else {
+				// OR logic - must match any filter
+				shouldBeVisible = this.settings.filters.some(filter => {
+					const matches = this.evaluateFilter(metadata, filter);
+					console.log('Filter:', filter, 'Matches:', matches);
+					return matches;
+				});
 			}
 
-			if (matchesAllFilters) {
-				console.log('File matches all filters:', file.path);
+			// Invert visibility if hideMatches is true
+			if (shouldBeVisible !== this.settings.hideMatches) {
+				console.log('File will be visible:', file.path);
 				visibleFiles.add(file.path);
 			}
 		}
@@ -248,6 +261,29 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		containerEl.createEl('h2', {text: 'Metadata Filter Settings'});
+
+		// Add filter behavior settings
+		new Setting(containerEl)
+			.setName('Hide Matching Files')
+			.setDesc('When enabled, matching files will be hidden instead of shown')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.hideMatches)
+				.onChange(async (value) => {
+					this.plugin.settings.hideMatches = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyFiltersToExplorer();
+				}));
+
+		new Setting(containerEl)
+			.setName('Combine Filters with AND')
+			.setDesc('When enabled, files must match ALL filters. When disabled, files must match ANY filter')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.combineWithAnd)
+				.onChange(async (value) => {
+					this.plugin.settings.combineWithAnd = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyFiltersToExplorer();
+				}));
 
 		// Add plugin information section
 		const infoEl = containerEl.createDiv('metadata-filter-info');
