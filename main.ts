@@ -45,6 +45,27 @@ export default class MetadataFilterPlugin extends Plugin {
 			})
 		);
 
+		// Register file explorer filter
+		this.registerEvent(
+			this.app.workspace.on('file-explorer:create', () => {
+				this.applyFiltersToExplorer();
+			})
+		);
+
+		// Apply filters when files are modified
+		this.registerEvent(
+			this.app.vault.on('modify', () => {
+				if (this.settings.filters.length > 0) {
+					this.applyFiltersToExplorer();
+				}
+			})
+		);
+
+		// Initial filter application
+		if (this.settings.filters.length > 0) {
+			this.applyFiltersToExplorer();
+		}
+
 		// Register search extension
 		this.registerEvent(
 			this.app.workspace.on('search:results-menu', (menu) => {
@@ -134,6 +155,45 @@ export default class MetadataFilterPlugin extends Plugin {
 			default:
 				return false;
 		}
+	}
+
+	async applyFiltersToExplorer() {
+		const fileExplorer = this.app.workspace.getLeavesOfType('file-explorer')[0];
+		if (!fileExplorer) return;
+
+		const files = this.app.vault.getMarkdownFiles();
+		const visibleFiles = new Set<string>();
+
+		for (const file of files) {
+			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
+			if (!metadata) continue;
+
+			let matchesAllFilters = true;
+			for (const filter of this.settings.filters) {
+				if (!this.evaluateFilter(metadata, filter)) {
+					matchesAllFilters = false;
+					break;
+				}
+			}
+
+			if (matchesAllFilters) {
+				visibleFiles.add(file.path);
+			}
+		}
+
+		// Apply CSS to hide non-matching files
+		const style = document.createElement('style');
+		style.id = 'metadata-filter-styles';
+		const oldStyle = document.getElementById('metadata-filter-styles');
+		if (oldStyle) oldStyle.remove();
+
+		const hideRules = Array.from(fileExplorer.view.fileItems.keys())
+			.filter(path => !visibleFiles.has(path))
+			.map(path => `.nav-file-title[data-path="${path}"] { display: none !important; }`)
+			.join('\n');
+
+		style.textContent = hideRules;
+		document.head.appendChild(style);
 	}
 
 	async applyFiltersToSearch() {
