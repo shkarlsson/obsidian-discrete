@@ -1,0 +1,10 @@
+.metadata-filter-setting {
+    padding: 12px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.metadata-filter-operator {
+    margin: 0 8px;
+}
