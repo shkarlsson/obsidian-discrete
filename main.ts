@@ -15,7 +15,7 @@ interface MetadataFilter {
 
 const DEFAULT_SETTINGS: MetadataFilterSettings = {
 	filters: [],
-	hideMatches: false,
+	hideMatches: true,
 	combineWithAnd: true
 }
 
@@ -271,6 +271,10 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.hideMatches = value;
 					await this.plugin.saveSettings();
+					// Remove existing filter styles
+					const oldStyle = document.getElementById('metadata-filter-styles');
+					if (oldStyle) oldStyle.remove();
+					// Apply new filters
 					await this.plugin.applyFiltersToExplorer();
 					// Force refresh of file explorer
 					this.app.workspace.trigger('file-explorer:refresh');
