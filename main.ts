@@ -65,7 +65,22 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async saveSettings() {
+		// Increment version
+		const manifest = JSON.parse(await this.app.vault.adapter.read('manifest.json'));
+		const version = manifest.version.split('.');
+		version[2] = (parseInt(version[2]) + 1).toString();
+		manifest.version = version.join('.');
+		await this.app.vault.adapter.write('manifest.json', JSON.stringify(manifest, null, '\t'));
+		
+		// Update package.json version to match
+		const packageJson = JSON.parse(await this.app.vault.adapter.read('package.json'));
+		packageJson.version = manifest.version;
+		await this.app.vault.adapter.write('package.json', JSON.stringify(packageJson, null, '\t'));
+		
+		// Save settings
 		await this.saveData(this.settings);
+		
+		console.log('Settings saved, version incremented to:', manifest.version);
 	}
 
 	async filterByMetadata(metadata: any) {
