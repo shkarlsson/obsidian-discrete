@@ -72,7 +72,7 @@ Right-click any file in the explorer to quickly create a filter based on its met
 
 ## Support
 
-If you encounter any issues or have suggestions for improvements, please visit the [GitHub repository](https://github.com/shkarlsson/obsidian-metadata-filter) and create an issue.
+If you encounter any issues or have suggestions for improvements, please visit the [GitHub repository](https://github.com/shkarlsson/obsidian-meta-filter/) and create an issue.
 
 ## Credits
 
