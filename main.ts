@@ -23,12 +23,10 @@ export default class MetadataFilterPlugin extends Plugin {
 	settings: MetadataFilterSettings;
 
 	async onload() {
-		console.log('Loading MetadataFilter plugin...');
 		await this.loadSettings();
 
 		// Add settings tab
 		this.addSettingTab(new MetadataFilterSettingTab(this.app, this));
-		console.log('MetadataFilter plugin settings loaded:', this.settings);
 
 		// Register file explorer view extension
 		this.registerEvent(
@@ -105,7 +103,6 @@ export default class MetadataFilterPlugin extends Plugin {
 		// Save settings
 		await this.saveData(this.settings);
 		
-		console.log('Settings saved, version incremented to:', manifest.version);
 	}
 
 	async filterByMetadata(metadata: any) {
@@ -132,10 +129,7 @@ export default class MetadataFilterPlugin extends Plugin {
 
 	evaluateFilter(metadata: any, filter: MetadataFilter): boolean {
 		const value = metadata[filter.key];
-		console.log('Evaluating filter:', filter, 'on value:', value);
-		
 		if (value === undefined) {
-			console.log('Value undefined for key:', filter.key);
 			return false;
 		}
 		
@@ -162,53 +156,37 @@ export default class MetadataFilterPlugin extends Plugin {
 			case 'less':
 				return Number(value) < Number(filter.value);
 			default:
-				console.log('Unknown operator:', filter.operator);
 				return false;
 		}
 	}
 
 	async applyFiltersToExplorer() {
 		const fileExplorer = this.app.workspace.getLeavesOfType('file-explorer')[0];
-		if (!fileExplorer) {
-			console.log('No file explorer found');
-			return;
-		}
+		if (!fileExplorer) return;
 
 		const files = this.app.vault.getMarkdownFiles();
 		const visibleFiles = new Set<string>();
 
-		console.log('Applying filters:', this.settings.filters);
-
 		for (const file of files) {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			console.log('File:', file.path, 'Metadata:', metadata);
-			
-			if (!metadata) {
-				console.log('No metadata for file:', file.path);
-				continue;
-			}
+			if (!metadata) continue;
 
 			let shouldBeVisible = false;
 			
 			if (this.settings.combineWithAnd) {
 				// AND logic - must match all filters
 				shouldBeVisible = this.settings.filters.every(filter => {
-					const matches = this.evaluateFilter(metadata, filter);
-					console.log('Filter:', filter, 'Matches:', matches);
-					return matches;
+					return this.evaluateFilter(metadata, filter);
 				});
 			} else {
 				// OR logic - must match any filter
 				shouldBeVisible = this.settings.filters.some(filter => {
-					const matches = this.evaluateFilter(metadata, filter);
-					console.log('Filter:', filter, 'Matches:', matches);
-					return matches;
+					return this.evaluateFilter(metadata, filter);
 				});
 			}
 
 			// Invert visibility if hideMatches is true
 			if (shouldBeVisible !== this.settings.hideMatches) {
-				console.log('File will be visible:', file.path);
 				visibleFiles.add(file.path);
 			}
 		}
@@ -220,14 +198,12 @@ export default class MetadataFilterPlugin extends Plugin {
 		if (oldStyle) oldStyle.remove();
 
 		const fileItems = fileExplorer.view.fileItems;
-		console.log('File items:', fileItems);
 		
 		const hideRules = Object.keys(fileItems)
 			.filter(path => !visibleFiles.has(path))
 			.map(path => `.nav-file-title[data-path="${CSS.escape(path)}"] { display: none !important; }`)
 			.join('\n');
 
-		console.log('Hide rules:', hideRules);
 		style.textContent = hideRules;
 		document.head.appendChild(style);
 	}
