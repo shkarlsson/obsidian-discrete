@@ -88,21 +88,8 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async saveSettings() {
-		// Increment version
-		const manifest = JSON.parse(await this.app.vault.adapter.read('manifest.json'));
-		const version = manifest.version.split('.');
-		version[2] = (parseInt(version[2]) + 1).toString();
-		manifest.version = version.join('.');
-		await this.app.vault.adapter.write('manifest.json', JSON.stringify(manifest, null, '\t'));
-		
-		// Update package.json version to match
-		const packageJson = JSON.parse(await this.app.vault.adapter.read('package.json'));
-		packageJson.version = manifest.version;
-		await this.app.vault.adapter.write('package.json', JSON.stringify(packageJson, null, '\t'));
-		
-		// Save settings
+		// Save settings first
 		await this.saveData(this.settings);
-		
 	}
 
 	async filterByMetadata(metadata: any) {
@@ -386,6 +373,9 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 					.onClick(async () => {
 						this.plugin.settings.filters.splice(index, 1);
 						await this.plugin.saveSettings();
+						// Force refresh of filters
+						await this.plugin.applyFiltersToExplorer();
+						// Refresh display
 						this.display();
 					}));
 		});
@@ -401,8 +391,10 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 						operator: 'equals',
 						type: 'string'
 					});
-					this.plugin.saveSettings();
-					this.display();
+					this.plugin.saveSettings().then(() => {
+						// Only refresh display after settings are saved
+						this.display();
+					});
 				}));
 	}
 }
