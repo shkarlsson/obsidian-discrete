@@ -1,10 +1,33 @@
 .metadata-filter-setting {
-    padding: 12px;
+    padding: 16px;
     border: 1px solid var(--background-modifier-border);
-    border-radius: 4px;
-    margin-bottom: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    background-color: var(--background-secondary);
 }
 
-.metadata-filter-operator {
-    margin: 0 8px;
+.metadata-filter-header {
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.metadata-filter-setting .setting-item {
+    border: none;
+    padding: 8px 0;
+}
+
+.metadata-filter-setting .setting-item-control {
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.metadata-filter-setting input,
+.metadata-filter-setting select {
+    min-width: 200px;
+}
+
+.mod-warning {
+    background-color: var(--background-modifier-error);
+    color: var(--text-on-accent);
 }

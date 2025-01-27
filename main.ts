@@ -150,34 +150,56 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 		containerEl.createEl('h2', {text: 'Metadata Filter Settings'});
 
 		this.plugin.settings.filters.forEach((filter, index) => {
-			const filterSetting = new Setting(containerEl)
-				.setName(`Filter ${index + 1}`)
+			const filterContainer = containerEl.createDiv('metadata-filter-setting');
+			
+			// Create filter header
+			const headerEl = filterContainer.createEl('h3', {
+				text: `Filter ${index + 1}`,
+				cls: 'metadata-filter-header'
+			});
+
+			// Key setting
+			new Setting(filterContainer)
+				.setName('Metadata Key')
+				.setDesc('The frontmatter field to filter on')
 				.addText(text => text
-					.setPlaceholder('Metadata key')
+					.setPlaceholder('Enter key (e.g., tags, status)')
 					.setValue(filter.key)
 					.onChange(async (value) => {
 						filter.key = value;
 						await this.plugin.saveSettings();
-					}))
+					}));
+
+			// Operator setting
+			new Setting(filterContainer)
+				.setName('Operator')
+				.setDesc('How to compare the values')
 				.addDropdown(dropdown => dropdown
 					.addOptions({
-						'equals': 'Equals',
-						'contains': 'Contains',
-						'exists': 'Exists',
-						'includes': 'Includes (for arrays)',
-						'greater': 'Greater than',
-						'less': 'Less than'
+						'equals': 'Equals exactly',
+						'contains': 'Contains text',
+						'exists': 'Field exists',
+						'includes': 'Includes value (for arrays)',
+						'greater': 'Greater than (for numbers)',
+						'less': 'Less than (for numbers)'
 					})
 					.setValue(filter.operator)
 					.onChange(async (value: any) => {
 						filter.operator = value;
 						await this.plugin.saveSettings();
-					}))
+						// Refresh to show/hide value field
+						this.display();
+					}));
+
+			// Type setting
+			new Setting(filterContainer)
+				.setName('Value Type')
+				.setDesc('The type of value to compare')
 				.addDropdown(dropdown => dropdown
 					.addOptions({
 						'string': 'Text',
 						'number': 'Number',
-						'array': 'Array',
+						'array': 'List/Array',
 						'boolean': 'Yes/No'
 					})
 					.setValue(filter.type || 'string')
@@ -186,23 +208,53 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}));
 
+			// Value setting (only show if operator isn't 'exists')
 			if (filter.operator !== 'exists') {
-				filterSetting.addText(text => text
-					.setPlaceholder('Value')
-					.setValue(filter.value)
-					.onChange(async (value) => {
-						filter.value = value;
-						await this.plugin.saveSettings();
-					}));
+				const valueSetting = new Setting(filterContainer)
+					.setName('Value')
+					.setDesc('The value to compare against');
+
+				if (filter.type === 'boolean') {
+					valueSetting.addDropdown(dropdown => dropdown
+						.addOptions({
+							'true': 'Yes',
+							'false': 'No'
+						})
+						.setValue(filter.value)
+						.onChange(async (value) => {
+							filter.value = value;
+							await this.plugin.saveSettings();
+						}));
+				} else {
+					valueSetting.addText(text => {
+						const placeholder = filter.type === 'number' ? 'Enter a number' :
+							filter.type === 'array' ? 'Enter value to search for in list' :
+							'Enter text value';
+						
+						text.setPlaceholder(placeholder)
+							.setValue(filter.value)
+							.onChange(async (value) => {
+								filter.value = value;
+								await this.plugin.saveSettings();
+							});
+						
+						if (filter.type === 'number') {
+							text.inputEl.type = 'number';
+						}
+					});
+				}
 			}
 
-			filterSetting.addButton(btn => btn
-				.setButtonText('Remove')
-				.onClick(async () => {
-					this.plugin.settings.filters.splice(index, 1);
-					await this.plugin.saveSettings();
-					this.display();
-				}));
+			// Remove button
+			new Setting(filterContainer)
+				.addButton(btn => btn
+					.setButtonText('Remove Filter')
+					.setClass('mod-warning')
+					.onClick(async () => {
+						this.plugin.settings.filters.splice(index, 1);
+						await this.plugin.saveSettings();
+						this.display();
+					}));
 		});
 
 		new Setting(containerEl)
