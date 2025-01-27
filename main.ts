@@ -254,19 +254,6 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 					this.plugin.applyFiltersToExplorer();
 				}));
 
-		// Add plugin information section
-		const infoEl = containerEl.createDiv('metadata-filter-info');
-		
-		infoEl.createEl('p', {
-			text: `Version: ${this.plugin.manifest.version}`,
-			cls: 'metadata-filter-version'
-		});
-		
-		infoEl.createEl('p', {
-			text: `Created by: ${this.plugin.manifest.author}`,
-			cls: 'metadata-filter-author'
-		});
-
 		containerEl.createEl('h3', {text: 'Filters'});
 
 		this.plugin.settings.filters.forEach((filter, index) => {
@@ -396,5 +383,9 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 						this.display();
 					});
 				}));
+
+		// Add version number at bottom right
+		const versionEl = containerEl.createDiv('metadata-filter-version');
+		versionEl.setText(`v${this.plugin.manifest.version}`);
 	}
 }
