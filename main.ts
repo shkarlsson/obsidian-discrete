@@ -166,6 +166,22 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 
 		containerEl.createEl('h2', {text: 'Metadata Filter Settings'});
 
+		// Add plugin information section
+		const infoEl = containerEl.createDiv('metadata-filter-info');
+		const manifest = this.app.plugins.plugins['metadata-filter'].manifest;
+		
+		infoEl.createEl('p', {
+			text: `Version: ${manifest.version}`,
+			cls: 'metadata-filter-version'
+		});
+		
+		infoEl.createEl('p', {
+			text: `Created by: ${manifest.author}`,
+			cls: 'metadata-filter-author'
+		});
+
+		containerEl.createEl('h3', {text: 'Filters'});
+
 		this.plugin.settings.filters.forEach((filter, index) => {
 			const filterContainer = containerEl.createDiv('metadata-filter-setting');
 			

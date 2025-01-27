@@ -1,3 +1,16 @@
+.metadata-filter-info {
+    margin-bottom: 24px;
+    padding: 12px;
+    background-color: var(--background-secondary);
+    border-radius: 4px;
+}
+
+.metadata-filter-version,
+.metadata-filter-author {
+    margin: 4px 0;
+    color: var(--text-muted);
+}
+
 .metadata-filter-setting {
     padding: 16px;
     border: 1px solid var(--background-modifier-border);

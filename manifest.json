@@ -1,9 +1,9 @@
 {
 	"id": "metadata-filter",
 	"name": "Metadata Filter",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Filter files based on metadata matches in file explorer and search",
-	"author": "Your Name",
+	"author": "shkarlsson (on github) with the help of aider",
 	"isDesktopOnly": false
 }
