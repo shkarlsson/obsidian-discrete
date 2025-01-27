@@ -168,15 +168,14 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 
 		// Add plugin information section
 		const infoEl = containerEl.createDiv('metadata-filter-info');
-		const manifest = this.app.plugins.plugins['metadata-filter'].manifest;
 		
 		infoEl.createEl('p', {
-			text: `Version: ${manifest.version}`,
+			text: `Version: ${this.plugin.manifest.version}`,
 			cls: 'metadata-filter-version'
 		});
 		
 		infoEl.createEl('p', {
-			text: `Created by: ${manifest.author}`,
+			text: `Created by: ${this.plugin.manifest.author}`,
 			cls: 'metadata-filter-author'
 		});
 
