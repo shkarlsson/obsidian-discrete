@@ -187,7 +187,7 @@ export default class MetadataFilterPlugin extends Plugin {
 		const oldStyle = document.getElementById('metadata-filter-styles');
 		if (oldStyle) oldStyle.remove();
 
-		const hideRules = Array.from(fileExplorer.view.fileItems.keys())
+		const hideRules = Object.keys(fileExplorer.view.fileItems)
 			.filter(path => !visibleFiles.has(path))
 			.map(path => `.nav-file-title[data-path="${path}"] { display: none !important; }`)
 			.join('\n');
