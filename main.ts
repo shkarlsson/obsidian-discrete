@@ -19,10 +19,12 @@ export default class MetadataFilterPlugin extends Plugin {
 	settings: MetadataFilterSettings;
 
 	async onload() {
+		console.log('Loading MetadataFilter plugin...');
 		await this.loadSettings();
 
 		// Add settings tab
 		this.addSettingTab(new MetadataFilterSettingTab(this.app, this));
+		console.log('MetadataFilter plugin settings loaded:', this.settings);
 
 		// Register file explorer view extension
 		this.registerEvent(
