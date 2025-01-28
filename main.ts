@@ -279,25 +279,35 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 					}));
 
 			// Operator setting
-			new Setting(filterContainer)
+			const operatorSetting = new Setting(filterContainer)
 				.setName('Operator')
-				.setDesc('How to compare the values')
-				.addDropdown(dropdown => dropdown
-					.addOptions({
-						'equals': 'Equals exactly',
-						'contains': 'Contains text',
-						'exists': 'Field exists',
-						'includes': 'Includes value (for arrays)',
-						'greater': 'Greater than (for numbers)',
-						'less': 'Less than (for numbers)'
-					})
-					.setValue(filter.operator)
-					.onChange(async (value: any) => {
-						filter.operator = value;
-						await this.plugin.saveSettings();
-						// Refresh to show/hide value field
-						this.display();
-					}));
+				.setDesc('How to compare the values');
+
+			const operators = [
+				{ value: 'equals', label: '=' },
+				{ value: 'contains', label: '∈' },
+				{ value: 'exists', label: '∃' },
+				{ value: 'includes', label: '⊂' },
+				{ value: 'greater', label: '>' },
+				{ value: 'less', label: '<' }
+			];
+
+			const operatorButtonContainer = operatorSetting.controlEl.createDiv('operator-buttons');
+			operators.forEach(op => {
+				const btn = operatorButtonContainer.createEl('button', {
+					text: op.label,
+					cls: `operator-button ${filter.operator === op.value ? 'is-active' : ''}`
+				});
+				btn.addEventListener('click', async () => {
+					// Remove active class from all buttons
+					operatorButtonContainer.findAll('.operator-button').forEach(b => 
+						b.removeClass('is-active'));
+					btn.addClass('is-active');
+					filter.operator = op.value;
+					await this.plugin.saveSettings();
+					this.display();
+				});
+			});
 
 			// Type setting
 			new Setting(filterContainer)
