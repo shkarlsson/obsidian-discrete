@@ -81,6 +81,16 @@ export default class MetadataFilterPlugin extends Plugin {
 				});
 			})
 		);
+
+		// Also apply filters whenever search is performed
+		this.registerEvent(
+			this.app.workspace.on('search:refresh', () => {
+				console.log('Search refresh detected');
+				if (this.settings.filters.length > 0) {
+					setTimeout(() => this.applyFiltersToSearch(), 100);
+				}
+			})
+		);
 	}
 
 	async loadSettings() {
