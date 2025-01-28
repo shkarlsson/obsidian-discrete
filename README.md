@@ -82,8 +82,6 @@ Right-click any file in the explorer and select "Filter by metadata" to quickly 
 ## Coming Soon
 
 - Search results filtering
-- Additional operator types
-- Custom filter presets
 
 ## Support
 
