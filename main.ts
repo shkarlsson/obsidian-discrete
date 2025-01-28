@@ -196,28 +196,49 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async applyFiltersToSearch() {
+		console.log('Applying filters to search...');
 		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-		if (!searchLeaf) return;
+		if (!searchLeaf) {
+			console.log('No search leaf found');
+			return;
+		}
 
 		const searchView = searchLeaf.view;
-		const query = searchView.getQuery();
+		const originalQuery = searchView.getQuery();
+		console.log('Original search query:', originalQuery);
+		
 		const files = this.app.vault.getMarkdownFiles();
+		console.log('Total files to check:', files.length);
+		
 		const matchingFiles = files.filter(file => {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			if (!metadata) return false;
-
-			if (this.settings.combineWithAnd) {
-				// AND logic - must match all filters
-				return this.settings.filters.every(filter => 
-					this.evaluateFilter(metadata, filter)
-				);
-			} else {
-				// OR logic - must match any filter
-				return this.settings.filters.some(filter => 
-					this.evaluateFilter(metadata, filter)
-				);
+			console.log('Checking file:', file.path, 'Metadata:', metadata);
+			
+			if (!metadata) {
+				console.log('No metadata for file:', file.path);
+				return false;
 			}
+
+			let matches;
+			if (this.settings.combineWithAnd) {
+				matches = this.settings.filters.every(filter => {
+					const result = this.evaluateFilter(metadata, filter);
+					console.log('AND Filter:', filter, 'Result:', result);
+					return result;
+				});
+			} else {
+				matches = this.settings.filters.some(filter => {
+					const result = this.evaluateFilter(metadata, filter);
+					console.log('OR Filter:', filter, 'Result:', result);
+					return result;
+				});
+			}
+			console.log('File matches:', file.path, matches);
+			return matches;
 		});
+
+		console.log('Matching files:', matchingFiles.length);
+		console.log('Hide matches setting:', this.settings.hideMatches);
 
 		// If hideMatches is true, we want to exclude these files from search
 		// If hideMatches is false, we want to only search these files
@@ -225,7 +246,10 @@ export default class MetadataFilterPlugin extends Plugin {
 			.map(file => `${this.settings.hideMatches ? '-' : ''}path:"${file.path}"`)
 			.join(' ');
 
-		searchView.setQuery(query + ' ' + pathQuery);
+		const finalQuery = (originalQuery + ' ' + pathQuery).trim();
+		console.log('Final search query:', finalQuery);
+		
+		searchView.setQuery(finalQuery);
 	}
 }
 
