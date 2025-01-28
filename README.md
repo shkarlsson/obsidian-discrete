@@ -74,9 +74,13 @@ Right-click any file in the explorer to quickly create a filter based on its met
 
 If you encounter any issues or have suggestions for improvements, please visit the [GitHub repository](https://github.com/shkarlsson/obsidian-discrete) and create an issue.
 
+## Development Note
+
+This plugin was primarily developed using [aider](https://aider.chat), an AI-powered coding assistant. While this means the code structure and implementation details were largely AI-generated, all functionality has been thoroughly tested and verified to work as intended.
+
 ## Credits
 
-Created by shkarlsson with the help of aider.
+Created by shkarlsson
 
 ## License
 
