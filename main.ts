@@ -353,18 +353,19 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 			}
 
 			// Remove button
-			new Setting(filterContainer)
-				.addButton(btn => btn
-					.setButtonText('Remove Filter')
-					.setClass('mod-warning')
-					.onClick(async () => {
-						this.plugin.settings.filters.splice(index, 1);
-						await this.plugin.saveSettings();
-						// Force refresh of filters
-						await this.plugin.applyFiltersToExplorer();
-						// Refresh display
-						this.display();
-					}));
+			const removeButton = createEl('button', {
+				text: '×',
+				cls: 'discrete-remove-filter'
+			});
+			removeButton.addEventListener('click', async () => {
+				this.plugin.settings.filters.splice(index, 1);
+				await this.plugin.saveSettings();
+				// Force refresh of filters
+				await this.plugin.applyFiltersToExplorer();
+				// Refresh display
+				this.display();
+			});
+			filterContainer.appendChild(removeButton);
 		});
 
 		new Setting(containerEl)
