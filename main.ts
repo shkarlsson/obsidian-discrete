@@ -289,7 +289,15 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.enableExplorerFilter = value;
 					await this.plugin.saveSettings();
-					await this.plugin.applyFiltersToExplorer();
+					
+					if (!value) {
+						// Remove any existing filter styles when disabling
+						const style = document.getElementById('metadata-filter-styles');
+						if (style) style.remove();
+					} else {
+						// Only apply filters if enabling
+						await this.plugin.applyFiltersToExplorer();
+					}
 					// Force refresh of file explorer
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
