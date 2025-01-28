@@ -172,14 +172,27 @@ export default class MetadataFilterPlugin extends Plugin {
 
 		for (const file of files) {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			if (!metadata) continue;
+			
+			// If no metadata and hideMatches is true, show the file
+			// If no metadata and hideMatches is false, hide the file
+			if (!metadata) {
+				if (this.settings.hideMatches) {
+					visibleFiles.add(file.path);
+				}
+				continue;
+			}
 
 			let shouldBeVisible = false;
 			
 			if (this.settings.combineWithAnd) {
 				// AND logic - must match all filters
 				shouldBeVisible = this.settings.filters.every(filter => {
-					return this.evaluateFilter(metadata, filter);
+					const matches = this.evaluateFilter(metadata, filter);
+					// For 'equals' operator, missing key should not affect AND result
+					if (!matches && filter.operator === 'equals' && !(filter.key in metadata)) {
+						return true;
+					}
+					return matches;
 				});
 			} else {
 				// OR logic - must match any filter
