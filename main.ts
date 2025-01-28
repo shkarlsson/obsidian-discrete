@@ -289,7 +289,9 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.enableExplorerFilter = value;
 					await this.plugin.saveSettings();
-					this.plugin.applyFiltersToExplorer();
+					await this.plugin.applyFiltersToExplorer();
+					// Force refresh of file explorer
+					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
 		new Setting(containerEl)
@@ -328,7 +330,9 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.combineWithAnd = value;
 					await this.plugin.saveSettings();
-					this.plugin.applyFiltersToExplorer();
+					await this.plugin.applyFiltersToExplorer();
+					// Force refresh of file explorer
+					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
 		containerEl.createEl('h3', {text: 'Filters'});
