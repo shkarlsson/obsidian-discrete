@@ -206,60 +206,64 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async applyFiltersToSearch() {
-		console.log('Applying filters to search...');
-		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-		if (!searchLeaf) {
-			console.log('No search leaf found');
+		// Get the global search instance
+		const globalSearch = this.app.internalPlugins.plugins['global-search'].instance;
+		if (!globalSearch) {
+			console.log('Global search not found');
 			return;
+		}
+
+		// Get current search leaf or create one
+		let searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
+		if (!searchLeaf) {
+			await globalSearch.openGlobalSearch('');
+			searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
 		}
 
 		const searchView = searchLeaf.view;
 		const originalQuery = searchView.getQuery();
-		console.log('Original search query:', originalQuery);
-		
+
+		// Get matching files based on metadata filters
 		const files = this.app.vault.getMarkdownFiles();
-		console.log('Total files to check:', files.length);
-		
 		const matchingFiles = files.filter(file => {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			console.log('Checking file:', file.path, 'Metadata:', metadata);
-			
-			if (!metadata) {
-				console.log('No metadata for file:', file.path);
-				return false;
-			}
+			if (!metadata) return false;
 
-			let matches;
 			if (this.settings.combineWithAnd) {
-				matches = this.settings.filters.every(filter => {
-					const result = this.evaluateFilter(metadata, filter);
-					console.log('AND Filter:', filter, 'Result:', result);
-					return result;
-				});
+				return this.settings.filters.every(filter => 
+					this.evaluateFilter(metadata, filter));
 			} else {
-				matches = this.settings.filters.some(filter => {
-					const result = this.evaluateFilter(metadata, filter);
-					console.log('OR Filter:', filter, 'Result:', result);
-					return result;
-				});
+				return this.settings.filters.some(filter => 
+					this.evaluateFilter(metadata, filter));
 			}
-			console.log('File matches:', file.path, matches);
-			return matches;
 		});
 
-		console.log('Matching files:', matchingFiles.length);
-		console.log('Hide matches setting:', this.settings.hideMatches);
+		// Build metadata filter part of the query
+		const metadataQueries = this.settings.filters.map(filter => {
+			if (filter.operator === 'exists') {
+				return `${filter.key}:`;
+			}
+			return `${filter.key}:${filter.value}`;
+		});
 
-		// If hideMatches is true, we want to exclude these files from search
-		// If hideMatches is false, we want to only search these files
-		const pathQuery = matchingFiles
-			.map(file => `${this.settings.hideMatches ? '-' : ''}path:"${file.path}"`)
-			.join(' ');
-
-		const finalQuery = (originalQuery + ' ' + pathQuery).trim();
-		console.log('Final search query:', finalQuery);
+		// Combine original query with metadata filters
+		const metadataQuery = metadataQueries.join(this.settings.combineWithAnd ? ' AND ' : ' OR ');
 		
+		// Add file path restrictions if hideMatches is true
+		const pathRestrictions = this.settings.hideMatches 
+			? matchingFiles.map(file => `-file:"${file.path}"`).join(' ')
+			: matchingFiles.map(file => `file:"${file.path}"`).join(' OR ');
+
+		// Combine all parts
+		const finalQuery = [
+			originalQuery,
+			metadataQuery,
+			pathRestrictions
+		].filter(Boolean).join(' ');
+		
+		// Apply the search
 		searchView.setQuery(finalQuery);
+		await searchView.searchDOM.search(finalQuery);
 	}
 }
 
