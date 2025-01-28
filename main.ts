@@ -220,7 +220,16 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async applyFiltersToSearch() {
-		if (!this.settings.enableSearchFilter) return;
+		if (!this.settings.enableSearchFilter) {
+			// If search filter is disabled, restore original search behavior
+			const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
+			if (!searchLeaf) return;
+			const searchView = searchLeaf.view;
+			if (searchView.searchDOM.update.__original) {
+				searchView.searchDOM.update = searchView.searchDOM.update.__original;
+			}
+			return;
+		}
 		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
 		if (!searchLeaf) return;
 
