@@ -206,19 +206,8 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async applyFiltersToSearch() {
-		// Get the global search instance
-		const globalSearch = this.app.internalPlugins.plugins['global-search'].instance;
-		if (!globalSearch) {
-			console.log('Global search not found');
-			return;
-		}
-
-		// Get current search leaf or create one
-		let searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-		if (!searchLeaf) {
-			await globalSearch.openGlobalSearch('');
-			searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-		}
+		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
+		if (!searchLeaf) return;
 
 		const searchView = searchLeaf.view;
 		const originalQuery = searchView.getQuery();
@@ -238,32 +227,15 @@ export default class MetadataFilterPlugin extends Plugin {
 			}
 		});
 
-		// Build metadata filter part of the query
-		const metadataQueries = this.settings.filters.map(filter => {
-			if (filter.operator === 'exists') {
-				return `${filter.key}:`;
-			}
-			return `${filter.key}:${filter.value}`;
-		});
+		// Create path-based query for matching files
+		const pathQuery = matchingFiles
+			.map(file => `${this.settings.hideMatches ? '-' : ''}path:"${file.path}"`)
+			.join(' ');
 
-		// Combine original query with metadata filters
-		const metadataQuery = metadataQueries.join(this.settings.combineWithAnd ? ' AND ' : ' OR ');
-		
-		// Add file path restrictions if hideMatches is true
-		const pathRestrictions = this.settings.hideMatches 
-			? matchingFiles.map(file => `-file:"${file.path}"`).join(' ')
-			: matchingFiles.map(file => `file:"${file.path}"`).join(' OR ');
-
-		// Combine all parts
-		const finalQuery = [
-			originalQuery,
-			metadataQuery,
-			pathRestrictions
-		].filter(Boolean).join(' ');
-		
 		// Apply the search
+		const finalQuery = [originalQuery, pathQuery].filter(Boolean).join(' ');
 		searchView.setQuery(finalQuery);
-		await searchView.searchDOM.search(finalQuery);
+		searchView.search(finalQuery);
 	}
 }
 
