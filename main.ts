@@ -399,17 +399,18 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 			// Operator cell
 			const operatorCell = row.createEl('td', { cls: 'operator-cell' });
 			const operators = [
-				{ value: 'equals', label: '=' },
-				{ value: 'contains', label: '∈' },
-				{ value: 'exists', label: '∃' },
-				{ value: 'includes', label: '⊂' },
-				{ value: 'greater', label: '>' },
-				{ value: 'less', label: '<' }
+				{ value: 'equals', label: '=', tooltip: 'Equals exactly' },
+				{ value: 'contains', label: '∈', tooltip: 'Contains text' },
+				{ value: 'exists', label: '∃', tooltip: 'Field exists' },
+				{ value: 'includes', label: '⊂', tooltip: 'List includes value' },
+				{ value: 'greater', label: '>', tooltip: 'Greater than' },
+				{ value: 'less', label: '<', tooltip: 'Less than' }
 			];
 			operators.forEach(op => {
 				const btn = operatorCell.createEl('button', {
 					text: op.label,
-					cls: `operator-button ${filter.operator === op.value ? 'is-active' : ''}`
+					cls: `operator-button ${filter.operator === op.value ? 'is-active' : ''}`,
+					attr: { title: op.tooltip }
 				});
 				btn.addEventListener('click', async () => {
 					operatorCell.findAll('.operator-button').forEach(b => 
