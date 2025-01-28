@@ -282,6 +282,28 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 
 		// Add filter behavior settings
 		new Setting(containerEl)
+			.setName('Use on File Explorer')
+			.setDesc('Apply the metadata filters to the file explorer.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableExplorerFilter)
+				.onChange(async (value) => {
+					this.plugin.settings.enableExplorerFilter = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyFiltersToExplorer();
+				}));
+
+		new Setting(containerEl)
+			.setName('Use on Search Results')
+			.setDesc('Apply the metadata filters to Obsidian search results.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableSearchFilter)
+				.onChange(async (value) => {
+					this.plugin.settings.enableSearchFilter = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyFiltersToSearch();
+				}));
+
+		new Setting(containerEl)
 			.setName('Hide Matching Files')
 			.setDesc('When enabled, matching files will be hidden instead of shown')
 			.addToggle(toggle => toggle
@@ -307,28 +329,6 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 					this.plugin.settings.combineWithAnd = value;
 					await this.plugin.saveSettings();
 					this.plugin.applyFiltersToExplorer();
-				}));
-
-		new Setting(containerEl)
-			.setName('Enable Explorer Filter')
-			.setDesc('When enabled, the metadata filters will be applied to the file explorer.')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.enableExplorerFilter)
-				.onChange(async (value) => {
-					this.plugin.settings.enableExplorerFilter = value;
-					await this.plugin.saveSettings();
-					this.plugin.applyFiltersToExplorer();
-				}));
-
-		new Setting(containerEl)
-			.setName('Enable Search Filter')
-			.setDesc('When enabled, the metadata filters will be applied to Obsidian search results.')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.enableSearchFilter)
-				.onChange(async (value) => {
-					this.plugin.settings.enableSearchFilter = value;
-					await this.plugin.saveSettings();
-					this.plugin.applyFiltersToSearch();
 				}));
 
 		containerEl.createEl('h3', {text: 'Filters'});
