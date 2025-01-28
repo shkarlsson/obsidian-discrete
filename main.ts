@@ -313,14 +313,10 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Use on Search Results')
-			.setDesc('Apply the metadata filters to Obsidian search results.')
+			.setDesc('Coming soon: Apply the metadata filters to Obsidian search results.')
 			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.enableSearchFilter)
-				.onChange(async (value) => {
-					this.plugin.settings.enableSearchFilter = value;
-					await this.plugin.saveSettings();
-					this.plugin.applyFiltersToSearch();
-				}));
+				.setValue(false)
+				.setDisabled(true));
 
 		new Setting(containerEl)
 			.setName('Hide Matching Files')
