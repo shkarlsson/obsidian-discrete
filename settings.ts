@@ -52,11 +52,13 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.hideMatches = value;
 					await this.plugin.saveSettings();
-					// Remove existing filter styles
-					const oldStyle = document.getElementById('metadata-filter-styles');
-					if (oldStyle) oldStyle.remove();
-					// Apply new filters
-					await this.plugin.applyFiltersToExplorer();
+					if (this.plugin.settings.enableExplorerFilter) {
+						// Remove existing filter styles
+						const oldStyle = document.getElementById('metadata-filter-styles');
+						if (oldStyle) oldStyle.remove();
+						// Apply new filters
+						await this.plugin.applyFiltersToExplorer();
+					}
 					// Force refresh of file explorer
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
@@ -69,7 +71,9 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.combineWithAnd = value;
 					await this.plugin.saveSettings();
-					await this.plugin.applyFiltersToExplorer();
+					if (this.plugin.settings.enableExplorerFilter) {
+						await this.plugin.applyFiltersToExplorer();
+					}
 					// Force refresh of file explorer
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
