@@ -76,7 +76,7 @@ If you encounter any issues or have suggestions for improvements, please visit t
 
 ## Development Note
 
-This plugin was primarily developed using [aider](https://aider.chat), an AI-powered coding assistant. While this means the code structure and implementation details were largely AI-generated, all functionality has been thoroughly tested and verified to work as intended.
+This plugin was developed with [aider](https://aider.chat). Contributions and feedback are welcome!
 
 ## Credits
 
