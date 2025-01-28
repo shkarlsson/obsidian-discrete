@@ -210,32 +210,44 @@ export default class MetadataFilterPlugin extends Plugin {
 		if (!searchLeaf) return;
 
 		const searchView = searchLeaf.view;
-		const originalQuery = searchView.getQuery();
-
-		// Get matching files based on metadata filters
-		const files = this.app.vault.getMarkdownFiles();
-		const matchingFiles = files.filter(file => {
-			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			if (!metadata) return false;
-
-			if (this.settings.combineWithAnd) {
-				return this.settings.filters.every(filter => 
-					this.evaluateFilter(metadata, filter));
-			} else {
-				return this.settings.filters.some(filter => 
-					this.evaluateFilter(metadata, filter));
+		
+		// Hook into the search DOM's update function
+		const originalUpdate = searchView.searchDOM.update;
+		searchView.searchDOM.update = async (matches) => {
+			if (!matches) {
+				await originalUpdate.call(searchView.searchDOM, matches);
+				return;
 			}
-		});
 
-		// Create path-based query for matching files
-		const pathQuery = matchingFiles
-			.map(file => `${this.settings.hideMatches ? '-' : ''}path:"${file.path}"`)
-			.join(' ');
+			// Filter matches based on metadata
+			const filteredMatches = matches.filter(match => {
+				const file = this.app.vault.getAbstractFileByPath(match.path);
+				if (!(file instanceof TFile)) return false;
 
-		// Apply the search
-		const finalQuery = [originalQuery, pathQuery].filter(Boolean).join(' ');
-		searchView.setQuery(finalQuery);
-		searchView.search(finalQuery);
+				const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
+				if (!metadata) return false;
+
+				if (this.settings.combineWithAnd) {
+					return this.settings.filters.every(filter => 
+						this.evaluateFilter(metadata, filter));
+				} else {
+					return this.settings.filters.some(filter => 
+						this.evaluateFilter(metadata, filter));
+				}
+			});
+
+			// If hideMatches is true, invert the filtered results
+			const finalMatches = this.settings.hideMatches 
+				? matches.filter(match => !filteredMatches.includes(match))
+				: filteredMatches;
+
+			// Call original update with filtered matches
+			await originalUpdate.call(searchView.searchDOM, finalMatches);
+		};
+
+		// Trigger a search refresh
+		const query = searchView.getQuery();
+		await searchView.search(query);
 	}
 }
 
