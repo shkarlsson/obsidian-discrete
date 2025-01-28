@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-discrete",
-	"version": "0.0.23",
+	"version": "0.0.24",
 	"description": "Filter files based on metadata matches in Obsidian",
 	"main": "main.js",
 	"scripts": {

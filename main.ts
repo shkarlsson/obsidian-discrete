@@ -262,8 +262,22 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 		// Add table header
 		const thead = table.createEl('thead');
 		const headerRow = thead.createEl('tr');
-		['Key', 'Operator', 'Type', 'Value', ''].forEach(text => {
-			headerRow.createEl('th', { text });
+		const headers = [
+			{ title: 'Key', desc: 'Frontmatter field to filter on' },
+			{ title: 'Operator', desc: 'How to compare values' },
+			{ title: 'Type', desc: 'Type of value to match' },
+			{ title: 'Value', desc: 'Value to compare against' },
+			{ title: '', desc: '' }
+		];
+		headers.forEach(header => {
+			const th = headerRow.createEl('th');
+			th.createEl('div', { text: header.title });
+			if (header.desc) {
+				th.createEl('div', { 
+					text: header.desc,
+					cls: 'header-description'
+				});
+			}
 		});
 
 		// Add table body
