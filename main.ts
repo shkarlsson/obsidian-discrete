@@ -256,33 +256,36 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 
 		containerEl.createEl('h3', {text: 'Filters'});
 
+		// Create filters table
+		const table = containerEl.createEl('table', { cls: 'filters-table' });
+		
+		// Add table header
+		const thead = table.createEl('thead');
+		const headerRow = thead.createEl('tr');
+		['Key', 'Operator', 'Type', 'Value', ''].forEach(text => {
+			headerRow.createEl('th', { text });
+		});
+
+		// Add table body
+		const tbody = table.createEl('tbody');
+		
 		this.plugin.settings.filters.forEach((filter, index) => {
-			const filterContainer = containerEl.createDiv('metadata-filter-setting');
-			
-			// Create filter header and remove button
-			const headerEl = filterContainer.createEl('h3', {
-				text: `Filter ${index + 1}`,
-				cls: 'metadata-filter-header'
+			const row = tbody.createEl('tr');
+
+			// Key cell
+			const keyCell = row.createEl('td');
+			const keyInput = keyCell.createEl('input', {
+				type: 'text',
+				placeholder: 'Enter key (e.g., tags, status)',
+				value: filter.key
+			});
+			keyInput.addEventListener('change', async () => {
+				filter.key = keyInput.value;
+				await this.plugin.saveSettings();
 			});
 
-
-			// Key setting
-			new Setting(filterContainer)
-				.setName('Metadata Key')
-				.setDesc('The frontmatter field to filter on')
-				.addText(text => text
-					.setPlaceholder('Enter key (e.g., tags, status)')
-					.setValue(filter.key)
-					.onChange(async (value) => {
-						filter.key = value;
-						await this.plugin.saveSettings();
-					}));
-
-			// Operator setting
-			const operatorSetting = new Setting(filterContainer)
-				.setName('Operator')
-				.setDesc('How to compare the values');
-
+			// Operator cell
+			const operatorCell = row.createEl('td', { cls: 'operator-cell' });
 			const operators = [
 				{ value: 'equals', label: '=' },
 				{ value: 'contains', label: '∈' },
@@ -291,16 +294,13 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				{ value: 'greater', label: '>' },
 				{ value: 'less', label: '<' }
 			];
-
-			const operatorButtonContainer = operatorSetting.controlEl.createDiv('operator-buttons');
 			operators.forEach(op => {
-				const btn = operatorButtonContainer.createEl('button', {
+				const btn = operatorCell.createEl('button', {
 					text: op.label,
 					cls: `operator-button ${filter.operator === op.value ? 'is-active' : ''}`
 				});
 				btn.addEventListener('click', async () => {
-					// Remove active class from all buttons
-					operatorButtonContainer.findAll('.operator-button').forEach(b => 
+					operatorCell.findAll('.operator-button').forEach(b => 
 						b.removeClass('is-active'));
 					btn.addClass('is-active');
 					filter.operator = op.value;
@@ -309,74 +309,75 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 				});
 			});
 
-			// Type setting
-			new Setting(filterContainer)
-				.setName('Value Type')
-				.setDesc('The type of value to compare')
-				.addDropdown(dropdown => dropdown
-					.addOptions({
-						'string': 'Text',
-						'number': 'Number',
-						'array': 'List/Array',
-						'boolean': 'Yes/No'
-					})
-					.setValue(filter.type || 'string')
-					.onChange(async (value: any) => {
-						filter.type = value;
-						await this.plugin.saveSettings();
-					}));
+			// Type cell
+			const typeCell = row.createEl('td');
+			const typeSelect = typeCell.createEl('select');
+			const types = {
+				'string': 'Text',
+				'number': 'Number',
+				'array': 'List/Array',
+				'boolean': 'Yes/No'
+			};
+			Object.entries(types).forEach(([value, label]) => {
+				const option = typeSelect.createEl('option', {
+					value: value,
+					text: label
+				});
+				if (value === filter.type) {
+					option.selected = true;
+				}
+			});
+			typeSelect.addEventListener('change', async () => {
+				filter.type = typeSelect.value as any;
+				await this.plugin.saveSettings();
+				this.display();
+			});
 
-			// Value setting (only show if operator isn't 'exists')
+			// Value cell
+			const valueCell = row.createEl('td');
 			if (filter.operator !== 'exists') {
-				const valueSetting = new Setting(filterContainer)
-					.setName('Value')
-					.setDesc('The value to compare against');
-
 				if (filter.type === 'boolean') {
-					valueSetting.addDropdown(dropdown => dropdown
-						.addOptions({
-							'true': 'Yes',
-							'false': 'No'
-						})
-						.setValue(filter.value)
-						.onChange(async (value) => {
-							filter.value = value;
-							await this.plugin.saveSettings();
-						}));
-				} else {
-					valueSetting.addText(text => {
-						const placeholder = filter.type === 'number' ? 'Enter a number' :
-							filter.type === 'array' ? 'Enter value to search for in list' :
-							'Enter text value';
-						
-						text.setPlaceholder(placeholder)
-							.setValue(filter.value)
-							.onChange(async (value) => {
-								filter.value = value;
-								await this.plugin.saveSettings();
-							});
-						
-						if (filter.type === 'number') {
-							text.inputEl.type = 'number';
+					const select = valueCell.createEl('select');
+					['true', 'false'].forEach(value => {
+						const option = select.createEl('option', {
+							value: value,
+							text: value === 'true' ? 'Yes' : 'No'
+						});
+						if (value === filter.value) {
+							option.selected = true;
 						}
+					});
+					select.addEventListener('change', async () => {
+						filter.value = select.value;
+						await this.plugin.saveSettings();
+					});
+				} else {
+					const input = valueCell.createEl('input', {
+						type: filter.type === 'number' ? 'number' : 'text',
+						placeholder: filter.type === 'number' ? 'Enter a number' :
+							filter.type === 'array' ? 'Enter value to search for in list' :
+							'Enter text value',
+						value: filter.value
+					});
+					input.addEventListener('change', async () => {
+						filter.value = input.value;
+						await this.plugin.saveSettings();
 					});
 				}
 			}
 
-			// Remove button
-			const removeButton = createEl('button', {
+			// Remove button cell
+			const removeCell = row.createEl('td');
+			const removeButton = removeCell.createEl('button', {
 				text: '×',
 				cls: 'discrete-remove-filter'
 			});
 			removeButton.addEventListener('click', async () => {
 				this.plugin.settings.filters.splice(index, 1);
 				await this.plugin.saveSettings();
-				// Force refresh of filters
 				await this.plugin.applyFiltersToExplorer();
-				// Refresh display
 				this.display();
 			});
-			filterContainer.appendChild(removeButton);
 		});
 
 		new Setting(containerEl)

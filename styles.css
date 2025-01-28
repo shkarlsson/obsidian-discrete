@@ -1,44 +1,36 @@
 
-.metadata-filter-setting {
-    padding: 16px;
-    position: relative;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: 6px;
-    margin-bottom: 16px;
-    background-color: var(--background-secondary);
+.filters-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
 }
 
-.metadata-filter-header {
-    margin: 0 0 12px 0;
-    padding-bottom: 8px;
+.filters-table th {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 2px solid var(--background-modifier-border);
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.filters-table td {
+    padding: 8px;
     border-bottom: 1px solid var(--background-modifier-border);
+    vertical-align: middle;
 }
 
-.metadata-filter-setting .setting-item {
-    border: none;
-    padding: 8px 0;
+.filters-table input,
+.filters-table select {
+    width: 100%;
+    min-width: 120px;
 }
 
-.metadata-filter-setting .setting-item {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    align-items: center;
-    gap: 12px;
+.filters-table tr:hover {
+    background-color: var(--background-modifier-hover);
 }
 
-.metadata-filter-setting .setting-item-info {
-    padding: 0;
-}
-
-.metadata-filter-setting .setting-item-control {
-    justify-content: flex-start;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.metadata-filter-setting input,
-.metadata-filter-setting select {
-    width: 200px;
+.filters-table .operator-cell {
+    white-space: nowrap;
 }
 
 .operator-button {
