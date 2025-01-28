@@ -126,14 +126,20 @@ export default class MetadataFilterPlugin extends Plugin {
 
 	evaluateFilter(metadata: any, filter: MetadataFilter): boolean {
 		const value = metadata[filter.key];
-		if (value === undefined) {
+		
+		// For 'exists' operator, just check if the key exists and has a value
+		if (filter.operator === 'exists') {
+			return value !== undefined && value !== null;
+		}
+		
+		// For all other operators, first check if value exists
+		if (value === undefined || value === null) {
 			return false;
 		}
 		
 		switch (filter.operator) {
-			case 'exists':
-				return true;
 			case 'equals':
+				// If value exists and matches, return true
 				if (filter.type === 'number') {
 					return Number(value) === Number(filter.value);
 				}
