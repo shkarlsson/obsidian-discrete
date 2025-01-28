@@ -79,9 +79,6 @@ Right-click any file in the explorer and select "Filter by metadata" to quickly 
    - Value Type: "array"
    - Value: "project"
 
-## Coming Soon
-
-- Search results filtering
 
 ## Support
 
