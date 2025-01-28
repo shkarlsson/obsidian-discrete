@@ -182,27 +182,16 @@ export default class MetadataFilterPlugin extends Plugin {
 				continue;
 			}
 
-			let shouldBeVisible = false;
-			
-			if (this.settings.combineWithAnd) {
-				// AND logic - must match all filters
-				shouldBeVisible = this.settings.filters.every(filter => {
-					const matches = this.evaluateFilter(metadata, filter);
-					// For 'equals' operator, missing key should not affect AND result
-					if (!matches && filter.operator === 'equals' && !(filter.key in metadata)) {
-						return true;
-					}
-					return matches;
-				});
-			} else {
-				// OR logic - must match any filter
-				shouldBeVisible = this.settings.filters.some(filter => {
-					return this.evaluateFilter(metadata, filter);
-				});
-			}
+			// Evaluate filters for this file
+			const matchesAll = this.settings.filters.every(f => this.evaluateFilter(metadata, f));
+			const matchesAny = this.settings.filters.some(f => this.evaluateFilter(metadata, f));
+			const matches = this.settings.combineWithAnd ? matchesAll : matchesAny;
 
-			// Invert visibility if hideMatches is true
-			if (shouldBeVisible !== this.settings.hideMatches) {
+			// If hideMatches is true, we hide matching files.
+			// If hideMatches is false, we hide non-matching files.
+			const shouldBeVisible = this.settings.hideMatches ? !matches : matches;
+
+			if (shouldBeVisible) {
 				visibleFiles.add(file.path);
 			}
 		}
