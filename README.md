@@ -6,12 +6,12 @@ A powerful plugin for Obsidian that allows you to filter files based on their fr
 
 - **Dynamic Filtering**: Filter files in your vault based on their frontmatter metadata
 - **Multiple Filter Types**: Support for various comparison operators:
-  - Equals exactly
-  - Contains text
-  - Field exists
-  - Includes value (for arrays)
-  - Greater than (for numbers)
-  - Less than (for numbers)
+  - = (Equals exactly)
+  - ∈ (Contains text)
+  - ∃ (Field exists)
+  - ⊂ (Includes value in list/array)
+  - > (Greater than)
+  - < (Less than)
 - **Flexible Value Types**: Handle different types of metadata:
   - Text
   - Numbers
@@ -48,7 +48,16 @@ A powerful plugin for Obsidian that allows you to filter files based on their fr
 
 ### Quick Filtering
 
-Right-click any file in the explorer to quickly create a filter based on its metadata.
+Right-click any file in the explorer and select "Filter by metadata" to quickly create a filter based on its metadata.
+
+### Understanding Operators
+
+- **=** (Equals): Exact match of the value
+- **∈** (Contains): Checks if the value contains the specified text
+- **∃** (Exists): Checks if the field exists in the frontmatter
+- **⊂** (Includes): For lists/arrays, checks if the value is in the list
+- **>** (Greater): For numbers, checks if value is greater than specified
+- **<** (Less): For numbers, checks if value is less than specified
 
 ## Examples
 
@@ -69,6 +78,12 @@ Right-click any file in the explorer to quickly create a filter based on its met
    - Operator: "includes"
    - Value Type: "array"
    - Value: "project"
+
+## Coming Soon
+
+- Search results filtering
+- Additional operator types
+- Custom filter presets
 
 ## Support
 
