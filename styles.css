@@ -55,7 +55,7 @@
 .metadata-filter-version {
     position: absolute;
     bottom: 12px;
-    right: 12px;
+    right: 24px;
     color: var(--text-muted);
     font-size: 0.8em;
 }
