@@ -1,7 +1,7 @@
 {
 	"id": "discrete",
 	"name": "Discrete",
-	"version": "0.0.40",
+	"version": "0.0.41",
 	"minAppVersion": "0.15.0",
 	"description": "Filter files based on metadata matches in file explorer and search",
 	"author": "shkarlsson",
