@@ -287,6 +287,28 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 		const {containerEl} = this;
 		containerEl.empty();
 
+		// Add styles for operator tooltips
+		const style = document.createElement('style');
+		style.textContent = `
+			.operator-button {
+				position: relative;
+			}
+			.operator-button:hover::after {
+				content: attr(title);
+				position: absolute;
+				bottom: 100%;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 4px 8px;
+				background: var(--background-modifier-hover);
+				border-radius: 4px;
+				font-size: 12px;
+				white-space: nowrap;
+				z-index: 100;
+			}
+		`;
+		document.head.appendChild(style);
+
 		containerEl.createEl('h2', {text: 'Metadata Filter Settings'});
 
 		// Add filter behavior settings
