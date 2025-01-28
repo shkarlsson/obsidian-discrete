@@ -1,27 +1,6 @@
 import { App, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
 
-interface MetadataFilterSettings {
-	filters: MetadataFilter[];
-	hideMatches: boolean;
-	combineWithAnd: boolean;
-	enableExplorerFilter: boolean;
-	enableSearchFilter: boolean;
-}
-
-interface MetadataFilter {
-	key: string;
-	value: string;
-	operator: 'equals' | 'contains' | 'exists' | 'includes' | 'greater' | 'less';
-	type: 'string' | 'number' | 'array' | 'boolean';
-}
-
-const DEFAULT_SETTINGS: MetadataFilterSettings = {
-	filters: [],
-	hideMatches: true,
-	combineWithAnd: true,
-	enableExplorerFilter: true,
-	enableSearchFilter: true
-}
+import { MetadataFilterSettings, MetadataFilter, DEFAULT_SETTINGS } from './types';
 
 export default class MetadataFilterPlugin extends Plugin {
 	settings: MetadataFilterSettings;
