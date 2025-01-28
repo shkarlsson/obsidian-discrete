@@ -1,4 +1,4 @@
-# Obsidian Metadata Filter Plugin
+# Discrete for Obsidian
 
 A powerful plugin for Obsidian that allows you to filter files based on their frontmatter metadata. Whether you want to focus on specific categories of notes, hide completed tasks, or organize your vault by custom metadata, this plugin makes it easy.
 
@@ -25,7 +25,7 @@ A powerful plugin for Obsidian that allows you to filter files based on their fr
 
 1. Open Obsidian Settings
 2. Go to Community Plugins and disable Safe Mode
-3. Click Browse and search for "Metadata Filter"
+3. Click Browse and search for "Discrete"
 4. Install the plugin
 5. Enable the plugin in your Community Plugins list
 
@@ -33,7 +33,7 @@ A powerful plugin for Obsidian that allows you to filter files based on their fr
 
 ### Creating Filters
 
-1. Open Settings → Metadata Filter
+1. Open Settings → Discrete
 2. Click "Add New Filter"
 3. Configure your filter:
    - Enter the metadata key (e.g., "tags", "status", "priority")
@@ -72,7 +72,7 @@ Right-click any file in the explorer to quickly create a filter based on its met
 
 ## Support
 
-If you encounter any issues or have suggestions for improvements, please visit the [GitHub repository](https://github.com/shkarlsson/obsidian-meta-filter/) and create an issue.
+If you encounter any issues or have suggestions for improvements, please visit the [GitHub repository](https://github.com/shkarlsson/obsidian-discrete) and create an issue.
 
 ## Credits
 
