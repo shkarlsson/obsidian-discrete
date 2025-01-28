@@ -259,11 +259,12 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 		this.plugin.settings.filters.forEach((filter, index) => {
 			const filterContainer = containerEl.createDiv('metadata-filter-setting');
 			
-			// Create filter header
+			// Create filter header and remove button
 			const headerEl = filterContainer.createEl('h3', {
 				text: `Filter ${index + 1}`,
 				cls: 'metadata-filter-header'
 			});
+
 
 			// Key setting
 			new Setting(filterContainer)
