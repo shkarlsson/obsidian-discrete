@@ -4,6 +4,8 @@ interface MetadataFilterSettings {
 	filters: MetadataFilter[];
 	hideMatches: boolean;
 	combineWithAnd: boolean;
+	enableExplorerFilter: boolean;
+	enableSearchFilter: boolean;
 }
 
 interface MetadataFilter {
@@ -16,7 +18,9 @@ interface MetadataFilter {
 const DEFAULT_SETTINGS: MetadataFilterSettings = {
 	filters: [],
 	hideMatches: true,
-	combineWithAnd: true
+	combineWithAnd: true,
+	enableExplorerFilter: true,
+	enableSearchFilter: true
 }
 
 export default class MetadataFilterPlugin extends Plugin {
@@ -50,21 +54,23 @@ export default class MetadataFilterPlugin extends Plugin {
 		// Register file explorer filter
 		this.registerEvent(
 			this.app.workspace.on('file-explorer:create', () => {
-				this.applyFiltersToExplorer();
+				if (this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
+					this.applyFiltersToExplorer();
+				}
 			})
 		);
 
 		// Apply filters when files are modified
 		this.registerEvent(
 			this.app.vault.on('modify', () => {
-				if (this.settings.filters.length > 0) {
+				if (this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
 					this.applyFiltersToExplorer();
 				}
 			})
 		);
 
 		// Initial filter application
-		if (this.settings.filters.length > 0) {
+		if (this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
 			this.applyFiltersToExplorer();
 		}
 
@@ -86,7 +92,7 @@ export default class MetadataFilterPlugin extends Plugin {
 		this.registerEvent(
 			this.app.workspace.on('search:refresh', () => {
 				console.log('Search refresh detected');
-				if (this.settings.filters.length > 0) {
+				if (this.settings.enableSearchFilter && this.settings.filters.length > 0) {
 					setTimeout(() => this.applyFiltersToSearch(), 100);
 				}
 			})
@@ -214,6 +220,7 @@ export default class MetadataFilterPlugin extends Plugin {
 	}
 
 	async applyFiltersToSearch() {
+		if (!this.settings.enableSearchFilter) return;
 		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
 		if (!searchLeaf) return;
 
@@ -300,6 +307,28 @@ class MetadataFilterSettingTab extends PluginSettingTab {
 					this.plugin.settings.combineWithAnd = value;
 					await this.plugin.saveSettings();
 					this.plugin.applyFiltersToExplorer();
+				}));
+
+		new Setting(containerEl)
+			.setName('Enable Explorer Filter')
+			.setDesc('When enabled, the metadata filters will be applied to the file explorer.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableExplorerFilter)
+				.onChange(async (value) => {
+					this.plugin.settings.enableExplorerFilter = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyFiltersToExplorer();
+				}));
+
+		new Setting(containerEl)
+			.setName('Enable Search Filter')
+			.setDesc('When enabled, the metadata filters will be applied to Obsidian search results.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableSearchFilter)
+				.onChange(async (value) => {
+					this.plugin.settings.enableSearchFilter = value;
+					await this.plugin.saveSettings();
+					this.plugin.applyFiltersToSearch();
 				}));
 
 		containerEl.createEl('h3', {text: 'Filters'});
