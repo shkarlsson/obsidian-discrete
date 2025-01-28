@@ -197,17 +197,35 @@ export default class MetadataFilterPlugin extends Plugin {
 
 	async applyFiltersToSearch() {
 		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-		if (searchLeaf) {
-			const searchView = searchLeaf.view;
-			const query = searchView.getQuery();
-			
-			// Add metadata filters to search query
-			const filterQueries = this.settings.filters.map(filter => {
-				return `path:"${filter.key}:${filter.value}"`;
-			});
-			
-			searchView.setQuery(query + ' ' + filterQueries.join(' '));
-		}
+		if (!searchLeaf) return;
+
+		const searchView = searchLeaf.view;
+		const query = searchView.getQuery();
+		const files = this.app.vault.getMarkdownFiles();
+		const matchingFiles = files.filter(file => {
+			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
+			if (!metadata) return false;
+
+			if (this.settings.combineWithAnd) {
+				// AND logic - must match all filters
+				return this.settings.filters.every(filter => 
+					this.evaluateFilter(metadata, filter)
+				);
+			} else {
+				// OR logic - must match any filter
+				return this.settings.filters.some(filter => 
+					this.evaluateFilter(metadata, filter)
+				);
+			}
+		});
+
+		// If hideMatches is true, we want to exclude these files from search
+		// If hideMatches is false, we want to only search these files
+		const pathQuery = matchingFiles
+			.map(file => `${this.settings.hideMatches ? '-' : ''}path:"${file.path}"`)
+			.join(' ');
+
+		searchView.setQuery(query + ' ' + pathQuery);
 	}
 }
 
