@@ -13,7 +13,10 @@
 
 .filters-table th div:first-child {
     color: var(--text-normal);
-    font-weight: 600;
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    font-size: 0.75em;
+    letter-spacing: 0.05em;
 }
 
 .filters-table th .header-description {
