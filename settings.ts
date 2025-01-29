@@ -120,7 +120,7 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 			const operatorCell = row.createEl('td', { cls: 'operator-cell' });
 			const operators = [
 				{ value: 'equals', label: '=', tooltip: 'Equals exactly' },
-				{ value: 'contains', label: '∈', tooltip: 'Contains text' },
+				{ value: 'contains', label: '∈', tooltip: 'Contains (text only)' },
 				{ value: 'exists', label: '∃', tooltip: 'Field exists' },
 				{ value: 'includes', label: '⊂', tooltip: 'List includes value' },
 				{ value: 'greater', label: '>', tooltip: 'Greater than' },
@@ -144,7 +144,7 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 
 			// Type cell
 			const typeCell = row.createEl('td');
-			if (!['exists', 'greater', 'less'].includes(filter.operator)) {
+			if (!['exists', 'greater', 'less', 'contains'].includes(filter.operator)) {
 				const typeSelect = typeCell.createEl('select');
 				const types = {
 					'string': 'Text',
@@ -169,6 +169,8 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 			} else {
 				if (['greater', 'less'].includes(filter.operator)) {
 					filter.type = 'number';
+				} else if (filter.operator === 'contains') {
+					filter.type = 'string';
 				}
 				typeCell.setText('');
 			}
