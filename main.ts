@@ -57,19 +57,26 @@ export default class MetadataFilterPlugin extends Plugin {
 
 		// Register search result filter
 		this.registerEvent(
-			this.app.workspace.on("search:results", (evt) => {
-				console.log("Search event:", evt);
+			this.app.workspace.on("search:results-menu", (menu, results) => {
+				console.log("Search event menu:", menu);
+				console.log("Search results:", results);
+				
 				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
-				const results = evt?.results;
-				if (!results) return;
-
-				for (const matchingFile of results.keys()) {
-					if (!this.shouldFileBeVisible(matchingFile)) {
-						results.delete(matchingFile);
-					}
+				// Filter the search results
+				if (results) {
+					const filteredResults = results.filter(result => {
+						if (result.file) {
+							return this.shouldFileBeVisible(result.file);
+						}
+						return true;
+					});
+					
+					// Replace the results array contents
+					results.length = 0;
+					results.push(...filteredResults);
 				}
 			})
 		);
@@ -225,12 +232,16 @@ export default class MetadataFilterPlugin extends Plugin {
 		const oldStyle = document.getElementById('metadata-filter-styles');
 		if (oldStyle) oldStyle.remove();
 
+		// Get file items safely
 		const fileItems = fileExplorer.view.fileItems;
+		let hideRules = '';
 		
-		const hideRules = Object.keys(fileItems)
-			.filter(path => !visibleFiles.has(path))
-			.map(path => `.nav-file-title[data-path="${CSS.escape(path)}"] { display: none !important; }`)
-			.join('\n');
+		if (fileItems) {
+			hideRules = Object.keys(fileItems)
+				.filter(path => !visibleFiles.has(path))
+				.map(path => `.nav-file-title[data-path="${CSS.escape(path)}"] { display: none !important; }`)
+				.join('\n');
+		}
 
 		style.textContent = hideRules;
 		document.head.appendChild(style);
