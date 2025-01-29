@@ -55,6 +55,24 @@ export default class MetadataFilterPlugin extends Plugin {
 			}
 		});
 
+		// Register search result filter
+		this.registerEvent(
+			this.app.workspace.on("search:results", (evt) => {
+				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
+					return;
+				}
+
+				const results = evt?.results;
+				if (!results) return;
+
+				for (const matchingFile of results.keys()) {
+					if (!this.shouldFileBeVisible(matchingFile)) {
+						results.delete(matchingFile);
+					}
+				}
+			})
+		);
+
 		// Register Omnisearch event handler
 		this.registerEvent(
 			// @ts-ignore - Omnisearch types aren't available
@@ -145,6 +163,25 @@ export default class MetadataFilterPlugin extends Plugin {
 			default:
 				return false;
 		}
+	}
+
+	shouldFileBeVisible(file: TFile): boolean {
+		const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
+		
+		// If no metadata and hideMatches is true, show the file
+		// If no metadata and hideMatches is false, hide the file
+		if (!metadata) {
+			return this.settings.hideMatches;
+		}
+
+		// Evaluate filters for this file
+		const matchesAll = this.settings.filters.every(f => this.evaluateFilter(metadata, f));
+		const matchesAny = this.settings.filters.some(f => this.evaluateFilter(metadata, f));
+		const matches = this.settings.combineWithAnd ? matchesAll : matchesAny;
+
+		// If hideMatches is true, we hide matching files.
+		// If hideMatches is false, we hide non-matching files.
+		return this.settings.hideMatches ? !matches : matches;
 	}
 
 	async applyFiltersToExplorer() {
