@@ -144,27 +144,31 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 
 			// Type cell
 			const typeCell = row.createEl('td');
-			const typeSelect = typeCell.createEl('select');
-			const types = {
-				'string': 'Text',
-				'number': 'Number',
-				'array': 'List/Array',
-				'boolean': 'Yes/No'
-			};
-			Object.entries(types).forEach(([value, label]) => {
-				const option = typeSelect.createEl('option', {
-					value: value,
-					text: label
+			if (filter.operator !== 'exists') {
+				const typeSelect = typeCell.createEl('select');
+				const types = {
+					'string': 'Text',
+					'number': 'Number',
+					'array': 'List/Array',
+					'boolean': 'Yes/No'
+				};
+				Object.entries(types).forEach(([value, label]) => {
+					const option = typeSelect.createEl('option', {
+						value: value,
+						text: label
+					});
+					if (value === filter.type) {
+						option.selected = true;
+					}
 				});
-				if (value === filter.type) {
-					option.selected = true;
-				}
-			});
-			typeSelect.addEventListener('change', async () => {
-				filter.type = typeSelect.value as any;
-				await this.plugin.saveSettings();
-				this.display();
-			});
+				typeSelect.addEventListener('change', async () => {
+					filter.type = typeSelect.value as any;
+					await this.plugin.saveSettings();
+					this.display();
+				});
+			} else {
+				typeCell.setText('-');
+			}
 
 			// Value cell
 			const valueCell = row.createEl('td');
