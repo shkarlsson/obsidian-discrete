@@ -57,25 +57,17 @@ export default class MetadataFilterPlugin extends Plugin {
 
 		// Register search result filter
 		this.registerEvent(
-			this.app.workspace.on("search:refresh", (searchLeaf) => {
-				console.log("Search refresh event:", searchLeaf);
+			this.app.workspace.on("search-match", (match, file) => {
+				console.log("Search match:", {match, file});
 				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
-				// Get the search view from the leaf
-				const searchView = searchLeaf.view;
-				if (!searchView || !searchView.dom) return;
-
-				// Find all result items and filter them
-				const resultItems = searchView.dom.findAll('.search-result-file-match');
-				for (const item of resultItems) {
-					const filePath = item.dataset.path;
-					if (!filePath) continue;
-
-					const file = this.app.vault.getAbstractFileByPath(filePath);
-					if (file instanceof TFile && !this.shouldFileBeVisible(file)) {
-						item.style.display = 'none';
+				if (file instanceof TFile && !this.shouldFileBeVisible(file)) {
+					// Hide the match's parent element
+					const matchEl = match.el;
+					if (matchEl && matchEl.parentElement) {
+						matchEl.parentElement.style.display = 'none';
 					}
 				}
 			})
@@ -84,27 +76,30 @@ export default class MetadataFilterPlugin extends Plugin {
 		// Register Omnisearch event handler
 		this.registerEvent(
 			// @ts-ignore - Omnisearch types aren't available
-			this.app.workspace.on("omnisearch:results-updated", (results: any) => {
-				console.log("Omnisearch results updated:", results);
-				if (!this.settings.enableOmnisearchFilter || this.settings.filters.length === 0) {
-					return;
-				}
-
-				// Get the Omnisearch view
-				const omnisearchView = results?.view;
-				if (!omnisearchView) return;
-
-				// Find and filter result items
-				const resultItems = omnisearchView.containerEl.findAll('.omnisearch-result');
-				for (const item of resultItems) {
-					const filePath = item.dataset.path;
-					if (!filePath) continue;
-
-					const file = this.app.vault.getAbstractFileByPath(filePath);
-					if (file instanceof TFile && !this.shouldFileBeVisible(file)) {
-						item.style.display = 'none';
+			this.app.workspace.on("omnisearch:search-started", () => {
+				console.log("Omnisearch search started");
+				// Wait a bit for results to render
+				setTimeout(() => {
+					if (!this.settings.enableOmnisearchFilter || this.settings.filters.length === 0) {
+						return;
 					}
-				}
+
+					// Find the Omnisearch results container
+					const omnisearchResults = document.querySelector('.omnisearch-results');
+					if (!omnisearchResults) return;
+
+					// Filter results
+					const resultItems = omnisearchResults.querySelectorAll('.omnisearch-result');
+					resultItems.forEach(item => {
+						const filePath = item.getAttribute('data-path');
+						if (!filePath) return;
+
+						const file = this.app.vault.getAbstractFileByPath(filePath);
+						if (file instanceof TFile && !this.shouldFileBeVisible(file)) {
+							(item as HTMLElement).style.display = 'none';
+						}
+					});
+				}, 100);
 			})
 		);
 
