@@ -72,6 +72,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
+		// Add separator
+		containerEl.createEl('hr');
+
 		containerEl.createEl('h2', {text: 'Rules'});
 
 		// Create filters table
