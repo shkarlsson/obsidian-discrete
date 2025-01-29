@@ -222,22 +222,28 @@ export class DiscreteSettingTab extends PluginSettingTab {
 			});
 		});
 
-		new Setting(containerEl)
-			.setName('Add New Filter')
-			.addButton(btn => btn
-				.setButtonText('Add')
-				.onClick(() => {
-					this.plugin.settings.filters.push({
-						key: '',
-						value: '',
-						operator: 'equals',
-						type: 'string'
-					});
-					this.plugin.saveSettings().then(() => {
-						// Only refresh display after settings are saved
-						this.display();
-					});
-				}));
+		// Add empty row with plus button
+		const emptyRow = tbody.createEl('tr');
+		// Add empty cells for alignment
+		emptyRow.createEl('td');
+		emptyRow.createEl('td');
+		emptyRow.createEl('td');
+		emptyRow.createEl('td');
+		const addCell = emptyRow.createEl('td');
+		const addButton = addCell.createEl('button', {
+			text: '+',
+			cls: 'discrete-remove-filter'
+		});
+		addButton.addEventListener('click', async () => {
+			this.plugin.settings.filters.push({
+				key: '',
+				value: '',
+				operator: 'equals',
+				type: 'string'
+			});
+			await this.plugin.saveSettings();
+			this.display();
+		});
 
 		// Add version number at bottom right
 		const versionEl = containerEl.createDiv('metadata-filter-version');
