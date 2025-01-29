@@ -39,6 +39,16 @@ export default class MetadataFilterPlugin extends Plugin {
 			})
 		);
 
+		// Register view-show event to handle switching to file explorer
+		this.registerEvent(
+			this.app.workspace.on('layout-change', () => {
+				const fileExplorer = this.app.workspace.getLeavesOfType('file-explorer')[0];
+				if (fileExplorer && this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
+					this.applyFiltersToExplorer();
+				}
+			})
+		);
+
 		// Apply filters when files are modified
 		this.registerEvent(
 			this.app.vault.on('modify', () => {
