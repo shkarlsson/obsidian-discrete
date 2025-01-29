@@ -1,10 +1,10 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import MetadataFilterPlugin from './main';
 
-export class MetadataFilterSettingTab extends PluginSettingTab {
-	plugin: MetadataFilterPlugin;
+export class DiscreteSettingTab extends PluginSettingTab {
+	plugin: DiscretePlugin;
 
-	constructor(app: App, plugin: MetadataFilterPlugin) {
+	constructor(app: App, plugin: DiscretePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -39,7 +39,7 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 
 
 		new Setting(containerEl)
-			.setName('Hide Matching Files')
+			.setName('Hide matching files')
 			.setDesc('When enabled, matching files will be hidden instead of shown')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.hideMatches)
@@ -172,7 +172,7 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 				} else if (filter.operator === 'contains') {
 					filter.type = 'string';
 				}
-				typeCell.setText('');
+				typeCell.addClass('discrete-empty-cell');
 			}
 
 			// Value cell

@@ -2,8 +2,8 @@ import { App, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian
 
 import { MetadataFilterSettings, MetadataFilter, DEFAULT_SETTINGS } from './types';
 
-export default class MetadataFilterPlugin extends Plugin {
-	settings: MetadataFilterSettings;
+export default class DiscretePlugin extends Plugin {
+	settings: DiscreteSettings;
 
 	async onload() {
 		await this.loadSettings();

@@ -85,6 +85,12 @@
     background-color: var(--background-modifier-error-hover);
 }
 
+.discrete-empty-cell {
+    /* Empty cell styling */
+    color: var(--text-muted);
+    font-style: italic;
+}
+
 .metadata-filter-version {
     position: absolute;
     bottom: 12px;
