@@ -57,26 +57,21 @@ export default class MetadataFilterPlugin extends Plugin {
 
 		// Register search result filter
 		this.registerEvent(
-			this.app.workspace.on("search:results-menu", (menu, results) => {
-				console.log("Search event menu:", menu);
-				console.log("Search results:", results);
+			this.app.workspace.on("global-search:results", (searchResults) => {
+				console.log("Search results:", searchResults);
 				
 				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
 				// Filter the search results
-				if (results) {
-					const filteredResults = results.filter(result => {
-						if (result.file) {
-							return this.shouldFileBeVisible(result.file);
+				const matches = searchResults.matches;
+				if (matches) {
+					for (const match of matches) {
+						if (!this.shouldFileBeVisible(match.file)) {
+							matches.delete(match.file.path);
 						}
-						return true;
-					});
-					
-					// Replace the results array contents
-					results.length = 0;
-					results.push(...filteredResults);
+					}
 				}
 			})
 		);
@@ -84,20 +79,19 @@ export default class MetadataFilterPlugin extends Plugin {
 		// Register Omnisearch event handler
 		this.registerEvent(
 			// @ts-ignore - Omnisearch types aren't available
-			this.app.workspace.on("omnisearch:search-results", (evt: Events) => {
-				console.log("Omnisearch event:", evt);
+			this.app.workspace.on("omnisearch:results-ready", (results: any) => {
+				console.log("Omnisearch results:", results);
 				if (!this.settings.enableOmnisearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
 				// Filter out results for files that shouldn't be visible
-				if (evt?.results) {
-					evt.results = evt.results.filter(result => {
-						if (result.file) {
-							return this.shouldFileBeVisible(result.file);
+				if (results?.resultDoms) {
+					for (const [file, dom] of results.resultDoms) {
+						if (!this.shouldFileBeVisible(file)) {
+							dom.style.display = 'none';
 						}
-						return true;
-					});
+					}
 				}
 			})
 		);
