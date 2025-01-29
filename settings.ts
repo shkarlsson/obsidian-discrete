@@ -144,7 +144,7 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 
 			// Type cell
 			const typeCell = row.createEl('td');
-			if (filter.operator !== 'exists') {
+			if (!['exists', 'greater', 'less'].includes(filter.operator)) {
 				const typeSelect = typeCell.createEl('select');
 				const types = {
 					'string': 'Text',
@@ -167,6 +167,9 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 					this.display();
 				});
 			} else {
+				if (['greater', 'less'].includes(filter.operator)) {
+					filter.type = 'number';
+				}
 				typeCell.setText('');
 			}
 
