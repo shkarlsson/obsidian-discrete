@@ -167,7 +167,7 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 					this.display();
 				});
 			} else {
-				typeCell.setText('-');
+				typeCell.setText('');
 			}
 
 			// Value cell
