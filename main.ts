@@ -53,29 +53,6 @@ export default class MetadataFilterPlugin extends Plugin {
 			this.applyFiltersToExplorer();
 		}
 
-		// Register search extension
-		this.registerEvent(
-			this.app.workspace.on('search:results-menu', (menu) => {
-				menu.addItem((item) => {
-					item
-						.setTitle('Apply metadata filters')
-						.setIcon('filter')
-						.onClick(() => {
-							this.applyFiltersToSearch();
-						});
-				});
-			})
-		);
-
-		// Also apply filters whenever search is performed
-		this.registerEvent(
-			this.app.workspace.on('search:refresh', () => {
-				console.log('Search refresh detected');
-				if (this.settings.enableSearchFilter && this.settings.filters.length > 0) {
-					setTimeout(() => this.applyFiltersToSearch(), 100);
-				}
-			})
-		);
 	}
 
 	async loadSettings() {
@@ -198,60 +175,6 @@ export default class MetadataFilterPlugin extends Plugin {
 		document.head.appendChild(style);
 	}
 
-	async applyFiltersToSearch() {
-		if (!this.settings.enableSearchFilter) {
-			// If search filter is disabled, restore original search behavior
-			const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-			if (!searchLeaf) return;
-			const searchView = searchLeaf.view;
-			if (searchView.searchDOM.update.__original) {
-				searchView.searchDOM.update = searchView.searchDOM.update.__original;
-			}
-			return;
-		}
-		const searchLeaf = this.app.workspace.getLeavesOfType('search')[0];
-		if (!searchLeaf) return;
-
-		const searchView = searchLeaf.view;
-		
-		// Hook into the search DOM's update function
-		const originalUpdate = searchView.searchDOM.update;
-		searchView.searchDOM.update = async (matches) => {
-			if (!matches) {
-				await originalUpdate.call(searchView.searchDOM, matches);
-				return;
-			}
-
-			// Filter matches based on metadata
-			const filteredMatches = matches.filter(match => {
-				const file = this.app.vault.getAbstractFileByPath(match.path);
-				if (!(file instanceof TFile)) return false;
-
-				const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-				if (!metadata) return false;
-
-				if (this.settings.combineWithAnd) {
-					return this.settings.filters.every(filter => 
-						this.evaluateFilter(metadata, filter));
-				} else {
-					return this.settings.filters.some(filter => 
-						this.evaluateFilter(metadata, filter));
-				}
-			});
-
-			// If hideMatches is true, invert the filtered results
-			const finalMatches = this.settings.hideMatches 
-				? matches.filter(match => !filteredMatches.includes(match))
-				: filteredMatches;
-
-			// Call original update with filtered matches
-			await originalUpdate.call(searchView.searchDOM, finalMatches);
-		};
-
-		// Trigger a search refresh
-		const query = searchView.getQuery();
-		await searchView.search(query);
-	}
 }
 
 import { MetadataFilterSettingTab } from './settings';

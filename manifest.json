@@ -8,6 +8,9 @@
 	"authorUrl": "https://github.com/shkarlsson",
 	"isDesktopOnly": false,
 	"repository": "https://github.com/shkarlsson/obsidian-discrete",
+	"dependencies": {
+		"obsidian-omnisearch": "^1.0.0"
+	},
 	"fundingUrl": {
 		"GitHub": "https://github.com/sponsors/shkarlsson"
 	}
