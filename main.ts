@@ -87,7 +87,7 @@ export default class MetadataFilterPlugin extends Plugin {
 
 				// Filter out results for files that shouldn't be visible
 				if (results?.resultDoms) {
-					for (const [file, dom] of results.resultDoms) {
+					for (const [file, dom] of results.resultDoms.entries()) {
 						if (!this.shouldFileBeVisible(file)) {
 							dom.style.display = 'none';
 						}
