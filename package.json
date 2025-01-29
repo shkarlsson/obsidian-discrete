@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-discrete",
 	"version": "0.1.0",
-	"description": "Filter files based on metadata matches in Obsidian",
+	"description": "Filter files in the file explorer based on their frontmatter metadata",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
