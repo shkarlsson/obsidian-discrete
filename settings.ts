@@ -13,7 +13,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 		const {containerEl} = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Metadata Filter Settings'});
+		containerEl.createEl('h2', {text: 'Filter Settings'});
 
 		// Add filter behavior settings
 		new Setting(containerEl)
@@ -72,7 +72,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
-		containerEl.createEl('h3', {text: 'Filters'});
+		containerEl.createEl('h2', {text: 'Rules'});
 
 		// Create filters table
 		const table = containerEl.createEl('table', { cls: 'filters-table' });

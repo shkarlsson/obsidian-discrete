@@ -1,7 +1,7 @@
 {
 	"id": "discrete",
 	"name": "Discrete",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"minAppVersion": "0.15.0",
 	"description": "Filter files in the file explorer based on their frontmatter metadata",
 	"author": "shkarlsson",
