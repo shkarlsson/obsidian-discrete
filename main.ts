@@ -57,21 +57,21 @@ export default class MetadataFilterPlugin extends Plugin {
 
 		// Register search result filter
 		this.registerEvent(
-			this.app.workspace.on("global-search:results", (searchResults) => {
-				console.log("Search results:", searchResults);
-				
+			this.app.workspace.on("search:results-menu", (menu, results) => {
+				console.log("Search menu:", menu, "results:", results);
 				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
-				// Filter the search results
-				const matches = searchResults.matches;
-				if (matches) {
-					for (const match of matches) {
-						if (!this.shouldFileBeVisible(match.file)) {
-							matches.delete(match.file.path);
-						}
-					}
+				if (results) {
+					const filteredResults = results.filter(result => {
+						const file = this.app.vault.getAbstractFileByPath(result.file?.path);
+						return file instanceof TFile && this.shouldFileBeVisible(file);
+					});
+					
+					// Replace the results array contents
+					results.length = 0;
+					results.push(...filteredResults);
 				}
 			})
 		);
