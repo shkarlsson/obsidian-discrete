@@ -57,21 +57,26 @@ export default class MetadataFilterPlugin extends Plugin {
 
 		// Register search result filter
 		this.registerEvent(
-			this.app.workspace.on("search:results-menu", (menu, results) => {
-				console.log("Search menu:", menu, "results:", results);
+			this.app.workspace.on("search:refresh", (searchLeaf) => {
+				console.log("Search refresh event:", searchLeaf);
 				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
-				if (results) {
-					const filteredResults = results.filter(result => {
-						const file = this.app.vault.getAbstractFileByPath(result.file?.path);
-						return file instanceof TFile && this.shouldFileBeVisible(file);
-					});
-					
-					// Replace the results array contents
-					results.length = 0;
-					results.push(...filteredResults);
+				// Get the search view from the leaf
+				const searchView = searchLeaf.view;
+				if (!searchView || !searchView.dom) return;
+
+				// Find all result items and filter them
+				const resultItems = searchView.dom.findAll('.search-result-file-match');
+				for (const item of resultItems) {
+					const filePath = item.dataset.path;
+					if (!filePath) continue;
+
+					const file = this.app.vault.getAbstractFileByPath(filePath);
+					if (file instanceof TFile && !this.shouldFileBeVisible(file)) {
+						item.style.display = 'none';
+					}
 				}
 			})
 		);
@@ -79,18 +84,25 @@ export default class MetadataFilterPlugin extends Plugin {
 		// Register Omnisearch event handler
 		this.registerEvent(
 			// @ts-ignore - Omnisearch types aren't available
-			this.app.workspace.on("omnisearch:results-ready", (results: any) => {
-				console.log("Omnisearch results:", results);
+			this.app.workspace.on("omnisearch:results-updated", (results: any) => {
+				console.log("Omnisearch results updated:", results);
 				if (!this.settings.enableOmnisearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
 
-				// Filter out results for files that shouldn't be visible
-				if (results?.resultDoms) {
-					for (const [file, dom] of results.resultDoms.entries()) {
-						if (!this.shouldFileBeVisible(file)) {
-							dom.style.display = 'none';
-						}
+				// Get the Omnisearch view
+				const omnisearchView = results?.view;
+				if (!omnisearchView) return;
+
+				// Find and filter result items
+				const resultItems = omnisearchView.containerEl.findAll('.omnisearch-result');
+				for (const item of resultItems) {
+					const filePath = item.dataset.path;
+					if (!filePath) continue;
+
+					const file = this.app.vault.getAbstractFileByPath(filePath);
+					if (file instanceof TFile && !this.shouldFileBeVisible(file)) {
+						item.style.display = 'none';
 					}
 				}
 			})
