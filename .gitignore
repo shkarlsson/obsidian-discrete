@@ -1,2 +1,27 @@
 .aider*
 .env
+# Dependencies
+node_modules/
+
+# Build output
+main.js
+*.js.map
+data.json
+
+# Development
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# TypeScript build info
+*.tsbuildinfo
+
+# npm
+.npm
+*.lock
+package-lock.json
+
+# Environment
+.env
+.env.*
