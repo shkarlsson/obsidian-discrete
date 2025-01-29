@@ -48,10 +48,12 @@ export default class MetadataFilterPlugin extends Plugin {
 			})
 		);
 
-		// Initial filter application
-		if (this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
-			this.applyFiltersToExplorer();
-		}
+		// Initial filter application - wait for file explorer to be ready
+		this.app.workspace.onLayoutReady(() => {
+			if (this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
+				this.applyFiltersToExplorer();
+			}
+		});
 
 		// Register Omnisearch event handler
 		this.registerEvent(
