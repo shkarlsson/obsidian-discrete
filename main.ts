@@ -53,6 +53,26 @@ export default class MetadataFilterPlugin extends Plugin {
 			this.applyFiltersToExplorer();
 		}
 
+		// Register Omnisearch event handler
+		this.registerEvent(
+			// @ts-ignore - Omnisearch types aren't available
+			this.app.workspace.on("omnisearch:search-results", (evt: Events) => {
+				if (!this.settings.enableOmnisearchFilter || this.settings.filters.length === 0) {
+					return;
+				}
+
+				// Filter out results for files that shouldn't be visible
+				if (evt?.results) {
+					evt.results = evt.results.filter(result => {
+						if (result.file) {
+							return this.shouldFileBeVisible(result.file);
+						}
+						return true;
+					});
+				}
+			})
+		);
+
 	}
 
 	async loadSettings() {

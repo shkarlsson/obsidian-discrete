@@ -39,14 +39,24 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Use on Search Results')
-			.setDesc('Apply the metadata filters to Omnisearch results (requires Omnisearch plugin)')
+			.setDesc('Apply the metadata filters to search results')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableSearchFilter)
+				.onChange(async (value) => {
+					this.plugin.settings.enableSearchFilter = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Use on Omnisearch')
+			.setDesc('Apply the metadata filters to Omnisearch results')
 			.addToggle(toggle => {
 				const hasOmnisearch = this.app.plugins.plugins['omnisearch'] !== undefined;
 				toggle
-					.setValue(hasOmnisearch && this.plugin.settings.enableSearchFilter)
+					.setValue(hasOmnisearch && this.plugin.settings.enableOmnisearchFilter)
 					.setDisabled(!hasOmnisearch)
 					.onChange(async (value) => {
-						this.plugin.settings.enableSearchFilter = value;
+						this.plugin.settings.enableOmnisearchFilter = value;
 						await this.plugin.saveSettings();
 					});
 				if (!hasOmnisearch) {
