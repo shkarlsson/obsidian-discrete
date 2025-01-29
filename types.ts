@@ -3,8 +3,6 @@ export interface MetadataFilterSettings {
 	hideMatches: boolean;
 	combineWithAnd: boolean;
 	enableExplorerFilter: boolean;
-	enableSearchFilter: boolean;
-	enableOmnisearchFilter: boolean;
 }
 
 export interface MetadataFilter {
@@ -18,7 +16,5 @@ export const DEFAULT_SETTINGS: MetadataFilterSettings = {
 	filters: [],
 	hideMatches: true,
 	combineWithAnd: true,
-	enableExplorerFilter: true,
-	enableSearchFilter: true,
-	enableOmnisearchFilter: true
+	enableExplorerFilter: true
 }

@@ -37,32 +37,6 @@ export class MetadataFilterSettingTab extends PluginSettingTab {
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
-		new Setting(containerEl)
-			.setName('Use on Search Results')
-			.setDesc('Apply the metadata filters to search results')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.enableSearchFilter)
-				.onChange(async (value) => {
-					this.plugin.settings.enableSearchFilter = value;
-					await this.plugin.saveSettings();
-				}));
-
-		new Setting(containerEl)
-			.setName('Use on Omnisearch')
-			.setDesc('Apply the metadata filters to Omnisearch results')
-			.addToggle(toggle => {
-				const hasOmnisearch = this.app.plugins.plugins['omnisearch'] !== undefined;
-				toggle
-					.setValue(hasOmnisearch && this.plugin.settings.enableOmnisearchFilter)
-					.setDisabled(!hasOmnisearch)
-					.onChange(async (value) => {
-						this.plugin.settings.enableOmnisearchFilter = value;
-						await this.plugin.saveSettings();
-					});
-				if (!hasOmnisearch) {
-					toggle.toggleEl.parentElement?.setAttribute('title', 'Omnisearch plugin is not installed');
-				}
-			});
 
 		new Setting(containerEl)
 			.setName('Hide Matching Files')
