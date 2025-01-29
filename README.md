@@ -1,6 +1,14 @@
-# Discrete for Obsidian
+# Discrete
 
-A powerful plugin for Obsidian that allows you to filter files based on their frontmatter metadata. Whether you want to focus on specific categories of notes, hide completed tasks, or organize your vault by custom metadata, this plugin makes it easy.
+A plugin for Obsidian that allows you to filter files based on their metadata (frontmatter).
+
+## Planned Features
+
+- Integration with Obsidian's search functionality
+- Integration with Omnisearch plugin
+- More filter operators and types
+- Filter presets/saved filter combinations
+- Filter history
 
 ## Features
 
