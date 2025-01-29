@@ -1,6 +1,6 @@
 import { App, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
 
-import { MetadataFilterSettings, MetadataFilter, DEFAULT_SETTINGS } from './types';
+import { DiscreteSettings, DiscreteFilter, DEFAULT_SETTINGS } from './types';
 
 export default class DiscretePlugin extends Plugin {
 	settings: DiscreteSettings;
@@ -9,7 +9,7 @@ export default class DiscretePlugin extends Plugin {
 		await this.loadSettings();
 
 		// Add settings tab
-		this.addSettingTab(new MetadataFilterSettingTab(this.app, this));
+		this.addSettingTab(new DiscreteSettingTab(this.app, this));
 
 		// Register file explorer view extension
 		this.registerEvent(
@@ -81,7 +81,7 @@ export default class DiscretePlugin extends Plugin {
 		const key = Object.keys(metadata)[0];
 		const value = metadata[key];
 		
-		const filter: MetadataFilter = {
+		const filter: DiscreteFilter = {
 			key: key,
 			value: value.toString(),
 			operator: Array.isArray(value) ? 'includes' : 
@@ -99,7 +99,7 @@ export default class DiscretePlugin extends Plugin {
 		this.app.workspace.trigger('file-explorer:refresh');
 	}
 
-	evaluateFilter(metadata: any, filter: MetadataFilter): boolean {
+	evaluateFilter(metadata: any, filter: DiscreteFilter): boolean {
 		const value = metadata[filter.key];
 		
 		// For 'exists' operator, just check if the key exists and has a value
@@ -213,4 +213,4 @@ export default class DiscretePlugin extends Plugin {
 
 }
 
-import { MetadataFilterSettingTab } from './settings';
+import { DiscreteSettingTab } from './settings';
