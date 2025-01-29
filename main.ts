@@ -58,6 +58,7 @@ export default class MetadataFilterPlugin extends Plugin {
 		// Register search result filter
 		this.registerEvent(
 			this.app.workspace.on("search:results", (evt) => {
+				console.log("Search event:", evt);
 				if (!this.settings.enableSearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
@@ -77,6 +78,7 @@ export default class MetadataFilterPlugin extends Plugin {
 		this.registerEvent(
 			// @ts-ignore - Omnisearch types aren't available
 			this.app.workspace.on("omnisearch:search-results", (evt: Events) => {
+				console.log("Omnisearch event:", evt);
 				if (!this.settings.enableOmnisearchFilter || this.settings.filters.length === 0) {
 					return;
 				}
