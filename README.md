@@ -1,6 +1,11 @@
+---
+auto-summary: Discrete is a plugin for Obsidian enabling dynamic file filtering in
+  the Explorer via frontmatter metadata with support for multiple comparison operators
+  and customizable behavior.
+---
 # Discrete
 
-A plugin for Obsidian that allows you to filter files based on their metadata (frontmatter).
+A plugin for Obsidian that allows you to filter in Explorer based on file metadata (frontmatter).
 
 ## Planned Features
 
@@ -14,20 +19,20 @@ A plugin for Obsidian that allows you to filter files based on their metadata (f
 
 - **Dynamic Filtering**: Filter files in your vault based on their frontmatter metadata
 - **Multiple Filter Types**: Support for various comparison operators:
-  - = (Equals exactly)
-  - ∈ (Contains text)
-  - ∃ (Field exists)
-  - ⊂ (Includes value in list/array)
-  - > (Greater than)
-  - < (Less than)
+	- = (Equals exactly)
+	- ∈ (Contains text)
+	- ∃ (Field exists)
+	- ⊂ (Includes value in list/array)
+	- \> (Greater than)
+	- \< (Less than)
 - **Flexible Value Types**: Handle different types of metadata:
-  - Text
-  - Numbers
-  - Arrays/Lists
-  - Boolean (Yes/No)
+	- Text
+	- Numbers
+	- Arrays/Lists
+	- Boolean (Yes/No)
 - **Customizable Behavior**:
-  - Choose to hide or show matching files
-  - Combine multiple filters with AND/OR logic
+	- Choose to hide or show matching files
+	- Combine multiple filters with AND/OR logic
 
 ## Installation
 
@@ -44,10 +49,10 @@ A plugin for Obsidian that allows you to filter files based on their metadata (f
 1. Open Settings → Discrete
 2. Click "Add New Filter"
 3. Configure your filter:
-   - Enter the metadata key (e.g., "tags", "status", "priority")
-   - Choose the operator (equals, contains, etc.)
-   - Select the value type
-   - Enter the value to match against
+	 - Enter the metadata key (e.g., "tags", "status", "priority")
+	 - Choose the operator (equals, contains, etc.)
+	 - Select the value type
+	 - Enter the value to match against
 
 ### Filter Behavior
 
@@ -70,23 +75,22 @@ Right-click any file in the explorer and select "Filter by metadata" to quickly 
 ## Examples
 
 1. **Hide Completed Tasks**:
-   - Key: "status"
-   - Operator: "equals exactly"
-   - Value Type: "text"
-   - Value: "completed"
+	 - Key: "status"
+	 - Operator: "equals exactly"
+	 - Value Type: "text"
+	 - Value: "completed"
 
 2. **Show High Priority Notes**:
-   - Key: "priority"
-   - Operator: "greater"
-   - Value Type: "number"
-   - Value: "3"
+	 - Key: "priority"
+	 - Operator: "greater"
+	 - Value Type: "number"
+	 - Value: "3"
 
 3. **Filter by Tag**:
-   - Key: "tags"
-   - Operator: "includes"
-   - Value Type: "array"
-   - Value: "project"
-
+	 - Key: "tags"
+	 - Operator: "includes"
+	 - Value Type: "array"
+	 - Value: "project"
 
 ## Support
 

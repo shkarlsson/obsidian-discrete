@@ -32,6 +32,7 @@ export default class DiscretePlugin extends Plugin {
 
 		// Register file explorer filter
 		this.registerEvent(
+			// @ts-ignore - 'file-explorer:create' is a valid event but not typed
 			this.app.workspace.on('file-explorer:create', () => {
 				if (this.settings.enableExplorerFilter && this.settings.filters.length > 0) {
 					this.applyFiltersToExplorer();
@@ -80,38 +81,38 @@ export default class DiscretePlugin extends Plugin {
 	async filterByMetadata(metadata: any) {
 		const key = Object.keys(metadata)[0];
 		const value = metadata[key];
-		
+
 		const filter: DiscreteFilter = {
 			key: key,
 			value: value.toString(),
-			operator: Array.isArray(value) ? 'includes' : 
-					 typeof value === 'number' ? 'equals' :
-					 typeof value === 'boolean' ? 'equals' : 'contains',
+			operator: Array.isArray(value) ? 'includes' :
+				typeof value === 'number' ? 'equals' :
+					typeof value === 'boolean' ? 'equals' : 'contains',
 			type: Array.isArray(value) ? 'array' :
-				  typeof value === 'number' ? 'number' :
-				  typeof value === 'boolean' ? 'boolean' : 'string'
+				typeof value === 'number' ? 'number' :
+					typeof value === 'boolean' ? 'boolean' : 'string'
 		};
-		
+
 		this.settings.filters.push(filter);
 		await this.saveSettings();
-		
+
 		// Refresh file explorer
 		this.app.workspace.trigger('file-explorer:refresh');
 	}
 
 	evaluateFilter(metadata: any, filter: DiscreteFilter): boolean {
 		const value = metadata[filter.key];
-		
+
 		// For 'exists' operator, just check if the key exists and has a value
 		if (filter.operator === 'exists') {
 			return value !== undefined && value !== null;
 		}
-		
+
 		// For all other operators, first check if value exists
 		if (value === undefined || value === null) {
 			return false;
 		}
-		
+
 		switch (filter.operator) {
 			case 'equals':
 				// If value exists and matches, return true
@@ -140,7 +141,7 @@ export default class DiscretePlugin extends Plugin {
 
 	shouldFileBeVisible(file: TFile): boolean {
 		const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-		
+
 		// If no metadata and hideMatches is true, show the file
 		// If no metadata and hideMatches is false, hide the file
 		if (!metadata) {
@@ -166,7 +167,7 @@ export default class DiscretePlugin extends Plugin {
 
 		for (const file of files) {
 			const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-			
+
 			// If no metadata and hideMatches is true, show the file
 			// If no metadata and hideMatches is false, hide the file
 			if (!metadata) {
@@ -197,9 +198,10 @@ export default class DiscretePlugin extends Plugin {
 		if (oldStyle) oldStyle.remove();
 
 		// Get file items safely
+		// @ts-ignore - fileItems exists on the file explorer view but is not typed
 		const fileItems = fileExplorer.view.fileItems;
 		let hideRules = '';
-		
+
 		if (fileItems) {
 			hideRules = Object.keys(fileItems)
 				.filter(path => !visibleFiles.has(path))
@@ -211,6 +213,11 @@ export default class DiscretePlugin extends Plugin {
 		document.head.appendChild(style);
 	}
 
+	onunload() {
+		// Remove the metadata-filter-styles stylesheet
+		const style = document.getElementById('metadata-filter-styles');
+		if (style) style.remove();
+	}
 }
 
 import { DiscreteSettingTab } from './settings';

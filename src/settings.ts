@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import MetadataFilterPlugin from './main';
+import DiscretePlugin from './main';
 
 export class DiscreteSettingTab extends PluginSettingTab {
 	plugin: DiscretePlugin;
@@ -10,21 +10,21 @@ export class DiscreteSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Filter Settings'});
+		new Setting(containerEl).setName('Filter').setHeading();
 
 		// Add filter behavior settings
 		new Setting(containerEl)
-			.setName('Use on File Explorer')
+			.setName('Use on file explorer')
 			.setDesc('Apply the metadata filters to the file explorer.')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.enableExplorerFilter)
 				.onChange(async (value) => {
 					this.plugin.settings.enableExplorerFilter = value;
 					await this.plugin.saveSettings();
-					
+
 					if (!value) {
 						// Remove any existing filter styles when disabling
 						const style = document.getElementById('metadata-filter-styles');
@@ -58,7 +58,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Combine Filters with AND')
+			.setName('Combine filters with AND')
 			.setDesc('When enabled, files must match ALL filters. When disabled, files must match ANY filter')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.combineWithAnd)
@@ -72,11 +72,11 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
-		containerEl.createEl('h2', {text: 'Rules'});
+		new Setting(containerEl).setName('Rules').setHeading();
 
 		// Create filters table
 		const table = containerEl.createEl('table', { cls: 'filters-table' });
-		
+
 		// Add table header
 		const thead = table.createEl('thead');
 		const headerRow = thead.createEl('tr');
@@ -91,7 +91,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 			const th = headerRow.createEl('th');
 			th.createEl('div', { text: header.title });
 			if (header.desc) {
-				th.createEl('div', { 
+				th.createEl('div', {
 					text: header.desc,
 					cls: 'header-description'
 				});
@@ -100,7 +100,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 
 		// Add table body
 		const tbody = table.createEl('tbody');
-		
+
 		this.plugin.settings.filters.forEach((filter, index) => {
 			const row = tbody.createEl('tr');
 
@@ -133,10 +133,10 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					attr: { title: op.tooltip }
 				});
 				btn.addEventListener('click', async () => {
-					operatorCell.findAll('.operator-button').forEach(b => 
+					operatorCell.findAll('.operator-button').forEach(b =>
 						b.removeClass('is-active'));
 					btn.addClass('is-active');
-					filter.operator = op.value;
+					filter.operator = op.value as 'equals' | 'contains' | 'exists' | 'includes' | 'greater' | 'less';
 					await this.plugin.saveSettings();
 					this.display();
 				});
@@ -149,7 +149,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 				const types = {
 					'string': 'Text',
 					'number': 'Number',
-					'array': 'List/Array',
+					'array': 'List/array',
 					'boolean': 'Yes/No'
 				};
 				Object.entries(types).forEach(([value, label]) => {
@@ -198,7 +198,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 						type: filter.type === 'number' ? 'number' : 'text',
 						placeholder: filter.type === 'number' ? 'Enter a number' :
 							filter.type === 'array' ? 'Enter value to search for in list' :
-							'Enter text value',
+								'Enter text value',
 						value: filter.value
 					});
 					input.addEventListener('change', async () => {
