@@ -1,19 +1,8 @@
----
-auto-summary: Discrete is a plugin for Obsidian enabling dynamic file filtering in
-  the Explorer via frontmatter metadata with support for multiple comparison operators
-  and customizable behavior.
----
 # Discrete
 
 A plugin for Obsidian that allows you to filter in Explorer based on file metadata (frontmatter).
 
-## Planned Features
 
-- Integration with Obsidian's search functionality
-- Integration with Omnisearch plugin
-- More filter operators and types
-- Filter presets/saved filter combinations
-- Filter history
 
 ## Features
 
@@ -33,6 +22,14 @@ A plugin for Obsidian that allows you to filter in Explorer based on file metada
 - **Customizable Behavior**:
 	- Choose to hide or show matching files
 	- Combine multiple filters with AND/OR logic
+
+### Planned Features
+
+- Integration with Obsidian's search functionality
+- Integration with Omnisearch plugin
+- More filter operators and types
+- Filter presets/saved filter combinations
+- Filter history
 
 ## Installation
 
