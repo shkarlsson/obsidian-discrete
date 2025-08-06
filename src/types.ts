@@ -15,6 +15,6 @@ export interface DiscreteFilter {
 export const DEFAULT_SETTINGS: DiscreteSettings = {
 	filters: [],
 	hideMatches: true,
-	combineWithAnd: true,
+	combineWithAnd: false,
 	enableExplorerFilter: true
 }
