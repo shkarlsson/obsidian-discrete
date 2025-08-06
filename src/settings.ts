@@ -13,12 +13,10 @@ export class DiscreteSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl).setName('Filter').setHeading();
-
 		// Add filter behavior settings
 		new Setting(containerEl)
-			.setName('Use on file explorer')
-			.setDesc('Apply the metadata filters to the file explorer.')
+			.setName('Enable file explorer filtering')
+			.setDesc('Apply the metadata filters to the file explorer to hide or show files based on their frontmatter.')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.enableExplorerFilter)
 				.onChange(async (value) => {
@@ -37,6 +35,7 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
 
+		new Setting(containerEl).setName('Filter behavior').setHeading();
 
 		new Setting(containerEl)
 			.setName('Hide matching files')
@@ -114,6 +113,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 			keyInput.addEventListener('change', async () => {
 				filter.key = keyInput.value;
 				await this.plugin.saveSettings();
+				if (this.plugin.settings.enableExplorerFilter) {
+					await this.plugin.applyFiltersToExplorer();
+				}
 			});
 
 			// Operator cell
@@ -138,6 +140,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					btn.addClass('is-active');
 					filter.operator = op.value as 'equals' | 'contains' | 'exists' | 'includes' | 'greater' | 'less';
 					await this.plugin.saveSettings();
+					if (this.plugin.settings.enableExplorerFilter) {
+						await this.plugin.applyFiltersToExplorer();
+					}
 					this.display();
 				});
 			});
@@ -164,6 +169,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 				typeSelect.addEventListener('change', async () => {
 					filter.type = typeSelect.value as any;
 					await this.plugin.saveSettings();
+					if (this.plugin.settings.enableExplorerFilter) {
+						await this.plugin.applyFiltersToExplorer();
+					}
 					this.display();
 				});
 			} else {
@@ -192,6 +200,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					select.addEventListener('change', async () => {
 						filter.value = select.value;
 						await this.plugin.saveSettings();
+						if (this.plugin.settings.enableExplorerFilter) {
+							await this.plugin.applyFiltersToExplorer();
+						}
 					});
 				} else {
 					const input = valueCell.createEl('input', {
@@ -204,6 +215,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 					input.addEventListener('change', async () => {
 						filter.value = input.value;
 						await this.plugin.saveSettings();
+						if (this.plugin.settings.enableExplorerFilter) {
+							await this.plugin.applyFiltersToExplorer();
+						}
 					});
 				}
 			}
@@ -242,6 +256,9 @@ export class DiscreteSettingTab extends PluginSettingTab {
 				type: 'string'
 			});
 			await this.plugin.saveSettings();
+			if (this.plugin.settings.enableExplorerFilter) {
+				await this.plugin.applyFiltersToExplorer();
+			}
 			this.display();
 		});
 
