@@ -1,13 +1,11 @@
 # Discrete
 
-A plugin for Obsidian that allows you to filter in Explorer based on file metadata (frontmatter).
-
-
+A focused Obsidian plugin for filtering files in the file explorer based on their frontmatter metadata. Keep your vault organized by hiding or showing files that match specific metadata criteria.
 
 ## Features
 
-- **Dynamic Filtering**: Filter files in your vault based on their frontmatter metadata
-- **Multiple Filter Types**: Support for various comparison operators:
+- **File Explorer Filtering**: Hide or show files in Obsidian's file explorer based on frontmatter metadata
+- **Multiple Filter Operators**: Support for various comparison operators:
 	- = (Equals exactly)
 	- ∈ (Contains text)
 	- ∃ (Field exists)
@@ -22,14 +20,15 @@ A plugin for Obsidian that allows you to filter in Explorer based on file metada
 - **Customizable Behavior**:
 	- Choose to hide or show matching files
 	- Combine multiple filters with AND/OR logic
+	- Real-time filtering as you create and modify rules
+- **Quick Filtering**: Right-click any file to instantly create filters based on its metadata
 
 ### Planned Features
 
-- Integration with Obsidian's search functionality
-- Integration with Omnisearch plugin
-- More filter operators and types
-- Filter presets/saved filter combinations
-- Filter history
+- More filter operators and comparison types
+- Filter presets and saved filter combinations
+- Import/export filter configurations
+- Enhanced UI for managing complex filter sets
 
 ## Installation
 
