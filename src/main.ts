@@ -1,4 +1,4 @@
-import { App, Plugin, PluginSettingTab, Setting, TFile, TFolder } from 'obsidian';
+import { Plugin, TFile } from 'obsidian';
 
 import { DiscreteSettings, DiscreteFilter, DEFAULT_SETTINGS } from './types';
 
@@ -139,24 +139,6 @@ export default class DiscretePlugin extends Plugin {
 		}
 	}
 
-	shouldFileBeVisible(file: TFile): boolean {
-		const metadata = this.app.metadataCache.getFileCache(file)?.frontmatter;
-
-		// If no metadata and hideMatches is true, show the file
-		// If no metadata and hideMatches is false, hide the file
-		if (!metadata) {
-			return this.settings.hideMatches;
-		}
-
-		// Evaluate filters for this file
-		const matchesAll = this.settings.filters.every(f => this.evaluateFilter(metadata, f));
-		const matchesAny = this.settings.filters.some(f => this.evaluateFilter(metadata, f));
-		const matches = this.settings.combineWithAnd ? matchesAll : matchesAny;
-
-		// If hideMatches is true, we hide matching files.
-		// If hideMatches is false, we hide non-matching files.
-		return this.settings.hideMatches ? !matches : matches;
-	}
 
 	async applyFiltersToExplorer() {
 		const fileExplorer = this.app.workspace.getLeavesOfType('file-explorer')[0];
