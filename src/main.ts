@@ -1,12 +1,21 @@
-import { Plugin, TFile } from 'obsidian';
+import { Plugin, TFile, setIcon } from 'obsidian';
 
 import { DiscreteSettings, DiscreteFilter, DEFAULT_SETTINGS } from './types';
 
 export default class DiscretePlugin extends Plugin {
 	settings: DiscreteSettings;
+	ribbonIconEl: HTMLElement;
 
 	async onload() {
 		await this.loadSettings();
+
+		// Add ribbon icon to toggle filtering
+		this.ribbonIconEl = this.addRibbonIcon('eye', 'Toggle file explorer filtering', (evt: MouseEvent) => {
+			this.toggleFiltering();
+		});
+
+		// Set initial icon state
+		this.updateRibbonIcon();
 
 		// Add settings tab
 		this.addSettingTab(new DiscreteSettingTab(this.app, this));
@@ -76,6 +85,50 @@ export default class DiscretePlugin extends Plugin {
 	async saveSettings() {
 		// Save settings first
 		await this.saveData(this.settings);
+	}
+
+	updateRibbonIcon() {
+		if (this.ribbonIconEl) {
+			const tooltip = this.settings.enableExplorerFilter ?
+				'Disable file explorer filtering' : 'Enable file explorer filtering';
+
+			// Clear the existing content completely
+			this.ribbonIconEl.empty();
+
+			if (this.settings.enableExplorerFilter) {
+				// Create custom eye-closed icon with proper ribbon icon sizing
+				this.ribbonIconEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-closed-icon lucide-eye-closed"><path d="m15 18-.722-3.25"/><path d="M2 8a10.645 10.645 0 0 0 20 0"/><path d="m20 15-1.726-2.05"/><path d="m4 15 1.726-2.05"/><path d="m9 18 .722-3.25"/></svg>`;
+			} else {
+				// Use standard eye icon
+				setIcon(this.ribbonIconEl, 'eye');
+			}
+
+			// Update tooltip
+			this.ribbonIconEl.setAttribute('aria-label', tooltip);
+			this.ribbonIconEl.setAttribute('data-tooltip', tooltip);
+		}
+	}
+
+	async toggleFiltering() {
+		this.settings.enableExplorerFilter = !this.settings.enableExplorerFilter;
+		await this.saveSettings();
+
+		if (!this.settings.enableExplorerFilter) {
+			// Remove any existing filter styles when disabling
+			const style = document.getElementById('metadata-filter-styles');
+			if (style) style.remove();
+		} else {
+			// Apply filters when enabling
+			if (this.settings.filters.length > 0) {
+				await this.applyFiltersToExplorer();
+			}
+		}
+
+		// Update ribbon icon to reflect new state
+		this.updateRibbonIcon();
+
+		// Force refresh of file explorer
+		this.app.workspace.trigger('file-explorer:refresh');
 	}
 
 	async filterByMetadata(metadata: any) {

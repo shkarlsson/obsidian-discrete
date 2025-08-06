@@ -31,6 +31,8 @@ export class DiscreteSettingTab extends PluginSettingTab {
 						// Only apply filters if enabling
 						await this.plugin.applyFiltersToExplorer();
 					}
+					// Update ribbon icon to stay in sync
+					this.plugin.updateRibbonIcon();
 					// Force refresh of file explorer
 					this.app.workspace.trigger('file-explorer:refresh');
 				}));
