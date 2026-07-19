@@ -232,17 +232,10 @@ export default class DiscretePlugin extends Plugin {
 		const oldStyle = document.getElementById('metadata-filter-styles');
 		if (oldStyle) oldStyle.remove();
 
-		// Get file items safely
-		// @ts-ignore - fileItems exists on the file explorer view but is not typed
-		const fileItems = fileExplorer.view.fileItems;
-		let hideRules = '';
-
-		if (fileItems) {
-			hideRules = Object.keys(fileItems)
-				.filter(path => !visibleFiles.has(path))
-				.map(path => `.nav-file-title[data-path="${CSS.escape(path)}"] { display: none !important; }`)
-				.join('\n');
-		}
+		const hideRules = files
+			.filter(f => !visibleFiles.has(f.path))
+			.map(f => `.nav-file-title[data-path="${CSS.escape(f.path)}"] { display: none !important; }`)
+			.join('\n');
 
 		style.textContent = hideRules;
 		document.head.appendChild(style);
