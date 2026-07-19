@@ -1,4 +1,5 @@
 .aider*
+AGENTS.md
 .env
 # Dependencies
 node_modules/
